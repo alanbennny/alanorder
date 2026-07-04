@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indian Aisle Ordering</title>
+
+  <!-- This app reads Excel directly in your phone browser -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    header {
+      background: #030712;
+      padding: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #374151;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .small {
+      color: #d1d5db;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .wrap {
+      padding: 14px;
+      max-width: 720px;
+      margin: auto;
+    }
+
+    .card {
+      background: #1f2937;
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: #f9fafb;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-blue { background: #2563eb; }
+    .btn-green { background: #16a34a; }
+    .btn-yellow { background: #ca8a04; }
+    .btn-red { background: #dc2626; }
+    .btn-grey { background: #4b5563; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      background: #374151;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      color: #d1d5db;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 24px;
+      color: #f9fafb;
+      margin-top: 4px;
+    }
+
+    .product-title {
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .meta {
+      background: #111827;
+      border-radius: 12px;
+      padding: 12px;
+      line-height: 1.8;
+      color: #e5e7eb;
+      font-size: 16px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      background: #374151;
+      border-radius: 999px;
+      margin: 8px 4px 0 0;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    progress {
+      width: 100%;
+      height: 18px;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none; }
+
+    .list-item {
+      padding: 11px;
+      border-bottom: 1px solid #374151;
+      font-size: 15px;
+    }
+
+    .danger {
+      color: #fecaca;
+      background: #7f1d1d;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Indian Aisle Ordering</h1>
+  <div class="small">Uses your Excel columns: No., Description, Inventory, Barcode No.</div>
+</header>
+
+<div class="wrap">
+
+  <div class="card" id="setupCard">
+    <h2>Load Excel File</h2>
+    <div class="small">
+      Upload your current Excel export. The app will use only:
+      <b>No.</b>, <b>Description</b>, <b>Inventory</b>, and <b>Barcode No.</b>
+    </div>
+
+    <label>Select Excel file</label>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+
+    <label>Sort order</label>
+    <select id="sortMode">
+      <option value="original">Keep Excel order</option>
+      <option value="description">Description A-Z</option>
+      <option value="inventoryLow">Lowest inventory first</option>
+    </select>
+
+    <button class="btn-blue" onclick="loadExcel()">Load Indian Aisle</button>
+    <button class="btn-grey" onclick="loadSample()">Test Sample</button>
+
+    <div class="danger">
+      Best setup: make your Indian aisle Excel rows already arranged in the walking order. Then choose “Keep Excel order”.
+    </div>
+  </div>
+
+  <div class="card hidden" id="dashboardCard">
+    <div class="grid">
+      <div class="stat">Remaining <b id="remainingCount">0</b></div>
+      <div class="stat">Ordered <b id="orderedCount">0</b></div>
+      <div class="stat">Skipped <b id="skippedCount">0</b></div>
+      <div class="stat">Total <b id="totalCount">0</b></div>
+    </div>
+
+    <input id="searchBox" placeholder="Search item no, barcode, or description" oninput="renderCurrent()" />
+    <progress id="progressBar" value="0" max="100"></progress>
+  </div>
+
+  <div class="card hidden" id="productCard">
+    <div class="product-title" id="productTitle"></div>
+    <div class="meta" id="productMeta"></div>
+
+    <span class="pill" id="positionPill"></span>
+    <span class="pill">Default Qty: 1</span>
+
+    <button class="btn-green" onclick="markCurrent('ordered')">ORDERED</button>
+    <button class="btn-yellow" onclick="markCurrent('skipped')">SKIP</button>
+    <button class="btn-grey" onclick="moveToEnd()">Not now / check later</button>
+    <button class="btn-red" onclick="undoLast()">Undo Last</button>
+  </div>
+
+  <div class="card hidden" id="completeCard">
+    <h2>Indian Aisle Complete</h2>
+    <p id="completeText"></p>
+    <button class="btn-blue" onclick="showSkipped()">Show Skipped Items</button>
+    <button class="btn-green" onclick="exportSkipped()">Export Skipped CSV</button>
+    <button class="btn-grey" onclick="exportAll()">Export Full Result CSV</button>
+    <button class="btn-red" onclick="resetProgress()">Reset Progress</button>
+    <div id="skippedList"></div>
+  </div>
+
+</div>
+
+<script>
+let items = [];
+let currentIndex = 0;
+let historyStack = [];
+const STORAGE_KEY = "indian_aisle_ordering_v2";
+
+function normaliseHeader(h) {
+  return String(h || "")
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\s+/g, "")
+    .trim();
+}
+
+function getValue(row, possibleNames) {
+  const keys = Object.keys(row);
+  for (const name of possibleNames) {
+    const wanted = normaliseHeader(name);
+    for (const key of keys) {
+      if (normaliseHeader(key) === wanted) {
+        return row[key] ?? "";
+      }
+    }
+  }
+  return "";
+}
+
+function rowToItem(row, index) {
+  return {
+    seq: index + 1,
+    itemNo: String(getValue(row, ["No.", "No", "Item No", "ItemNo"])).trim(),
+    description: String(getValue(row, ["Description", "Desc"])).trim(),
+    inventory: String(getValue(row, ["Inventory", "Stock"])).trim(),
+    barcode: String(getValue(row, ["Barcode No.", "Barcode No", "BarcodeNo", "Barcode"])).trim(),
+    status: ""
+  };
+}
+
+async function loadExcel() {
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) {
+    alert("Select your Excel file first.");
+    return;
+  }
+
+  const data = await file.arrayBuffer();
+  const workbook = XLSX.read(data, { type: "array" });
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+  items = rows
+    .map(rowToItem)
+    .filter(x => x.itemNo || x.description);
+
+  if (!items.length) {
+    alert("No products found. Check if your headers include No., Description, Inventory, Barcode No.");
+    return;
+  }
+
+  applySort();
+  currentIndex = 0;
+  historyStack = [];
+  save();
+  showApp();
+}
+
+function applySort() {
+  const mode = document.getElementById("sortMode").value;
+  if (mode === "description") {
+    items.sort((a, b) => a.description.localeCompare(b.description));
+  }
+  if (mode === "inventoryLow") {
+    items.sort((a, b) => (Number(a.inventory) || 0) - (Number(b.inventory) || 0));
+  }
+  items.forEach((x, i) => x.seq = i + 1);
+}
+
+function loadSample() {
+  items = [
+    {seq:1,itemNo:"10001",description:"Aashirvaad Atta 10kg",inventory:"4",barcode:"930000000001",status:""},
+    {seq:2,itemNo:"10002",description:"MDH Garam Masala",inventory:"2",barcode:"930000000002",status:""},
+    {seq:3,itemNo:"10003",description:"Daawat Basmati Rice 5kg",inventory:"8",barcode:"930000000003",status:""},
+    {seq:4,itemNo:"10004",description:"Maggi Masala Noodles",inventory:"6",barcode:"930000000004",status:""},
+    {seq:5,itemNo:"10005",description:"Priya Mango Pickle",inventory:"1",barcode:"930000000005",status:""}
+  ];
+  currentIndex = 0;
+  historyStack = [];
+  save();
+  showApp();
+}
+
+function showApp() {
+  document.getElementById("setupCard").classList.add("hidden");
+  document.getElementById("dashboardCard").classList.remove("hidden");
+  renderCurrent();
+}
+
+function visibleUnmarked() {
+  const q = document.getElementById("searchBox").value.toLowerCase().trim();
+  return items.filter(x => {
+    if (x.status) return false;
+    if (!q) return true;
+    return (
+      x.itemNo.toLowerCase().includes(q) ||
+      x.description.toLowerCase().includes(q) ||
+      x.barcode.toLowerCase().includes(q)
+    );
+  });
+}
+
+function updateStats() {
+  const total = items.length;
+  const ordered = items.filter(x => x.status === "ordered").length;
+  const skipped = items.filter(x => x.status === "skipped").length;
+  const remaining = items.filter(x => !x.status).length;
+
+  document.getElementById("totalCount").textContent = total;
+  document.getElementById("orderedCount").textContent = ordered;
+  document.getElementById("skippedCount").textContent = skipped;
+  document.getElementById("remainingCount").textContent = remaining;
+  document.getElementById("progressBar").value = total ? ((ordered + skipped) / total) * 100 : 0;
+}
+
+function renderCurrent() {
+  updateStats();
+
+  const remainingAll = items.filter(x => !x.status).length;
+  if (remainingAll === 0) {
+    complete();
+    return;
+  }
+
+  const list = visibleUnmarked();
+
+  document.getElementById("completeCard").classList.add("hidden");
+  document.getElementById("productCard").classList.remove("hidden");
+
+  if (!list.length) {
+    document.getElementById("productTitle").textContent = "No matching items";
+    document.getElementById("productMeta").innerHTML = "Clear search to continue.";
+    document.getElementById("positionPill").textContent = "";
+    return;
+  }
+
+  const item = list[0];
+  currentIndex = items.indexOf(item);
+
+  document.getElementById("productTitle").textContent = item.description || "(No description)";
+  document.getElementById("productMeta").innerHTML =
+    `Item No: <b>${item.itemNo || "-"}</b><br>` +
+    `Inventory: <b>${item.inventory || "-"}</b><br>` +
+    `Barcode: <b>${item.barcode || "-"}</b>`;
+
+  document.getElementById("positionPill").textContent = `Line ${item.seq}`;
+}
+
+function markCurrent(status) {
+  const item = items[currentIndex];
+  if (!item || item.status) return;
+  historyStack.push({ index: currentIndex, oldStatus: item.status });
+  item.status = status;
+  save();
+  renderCurrent();
+}
+
+function moveToEnd() {
+  const item = items[currentIndex];
+  if (!item || item.status) return;
+  items.push(items.splice(currentIndex, 1)[0]);
+  items.forEach((x, i) => x.seq = i + 1);
+  save();
+  renderCurrent();
+}
+
+function undoLast() {
+  const last = historyStack.pop();
+  if (!last) {
+    alert("Nothing to undo.");
+    return;
+  }
+  if (items[last.index]) {
+    items[last.index].status = last.oldStatus;
+  }
+  save();
+  renderCurrent();
+}
+
+function complete() {
+  updateStats();
+  document.getElementById("productCard").classList.add("hidden");
+  document.getElementById("completeCard").classList.remove("hidden");
+
+  const ordered = items.filter(x => x.status === "ordered").length;
+  const skipped = items.filter(x => x.status === "skipped").length;
+
+  document.getElementById("completeText").textContent =
+    `Ordered: ${ordered}. Skipped: ${skipped}. Total: ${items.length}.`;
+}
+
+function showSkipped() {
+  const skipped = items.filter(x => x.status === "skipped");
+  const div = document.getElementById("skippedList");
+
+  if (!skipped.length) {
+    div.innerHTML = "<p>No skipped items.</p>";
+    return;
+  }
+
+  div.innerHTML = "<h3>Skipped Items</h3>" + skipped.map(x =>
+    `<div class="list-item">
+      <b>${x.description}</b><br>
+      <span class="small">Item No: ${x.itemNo} | Inventory: ${x.inventory} | Barcode: ${x.barcode}</span>
+    </div>`
+  ).join("");
+}
+
+function makeCSV(rows) {
+  const header = ["Line","No.","Description","Inventory","Barcode No.","Status"];
+  const body = rows.map(x => [x.seq, x.itemNo, x.description, x.inventory, x.barcode, x.status]);
+  return [header, ...body]
+    .map(r => r.map(v => `"${String(v ?? "").replaceAll('"','""')}"`).join(","))
+    .join("\n");
+}
+
+function downloadCSV(filename, rows) {
+  const blob = new Blob([makeCSV(rows)], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function exportSkipped() {
+  downloadCSV("indian_aisle_skipped.csv", items.filter(x => x.status === "skipped"));
+}
+
+function exportAll() {
+  downloadCSV("indian_aisle_result.csv", items);
+}
+
+function resetProgress() {
+  if (!confirm("Reset all Ordered/Skipped progress?")) return;
+  items.forEach(x => x.status = "");
+  historyStack = [];
+  save();
+  renderCurrent();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, historyStack }));
+}
+
+(function init() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return;
+
+  try {
+    const data = JSON.parse(saved);
+    if (data.items && data.items.length) {
+      items = data.items;
+      historyStack = data.historyStack || [];
+      showApp();
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
