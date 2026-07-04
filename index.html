@@ -3,297 +3,209 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Indian Aisle Order Assistant</title>
+  <title>Indian Aisle Bay Ordering</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     *{box-sizing:border-box}
-    :root{
-      --bg:#0b1220;--card:#151f32;--card2:#1d2a44;--text:#f8fafc;--muted:#b6c2d4;
-      --blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#8b5cf6;
-    }
-    body{margin:0;font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#08111f,#111827);color:var(--text)}
-    header{position:sticky;top:0;z-index:10;background:rgba(8,17,31,.96);backdrop-filter:blur(8px);padding:16px;border-bottom:1px solid #26344f}
-    h1{margin:0;font-size:21px;letter-spacing:.2px}
-    h2{margin:0 0 10px;font-size:20px}
-    .small{color:var(--muted);font-size:13px;line-height:1.45}
-    .wrap{max-width:780px;margin:auto;padding:14px}
-    .card{background:rgba(21,31,50,.96);border:1px solid #26344f;border-radius:18px;padding:15px;margin-bottom:14px;box-shadow:0 12px 30px rgba(0,0,0,.22);animation:fadeUp .22s ease both}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    :root{--bg:#07111f;--card:#172033;--soft:#22314d;--line:#31415e;--text:#f8fafc;--muted:#b9c6d8;--blue:#3b82f6;--green:#22c55e;--yellow:#ca8a04;--red:#ef4444;--purple:#8b5cf6}
+    body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#07111f,#0f172a);color:var(--text)}
+    header{position:sticky;top:0;z-index:20;background:rgba(7,17,31,.96);padding:15px;border-bottom:1px solid var(--line)}
+    h1{font-size:21px;margin:0} h2{margin:0 0 10px;font-size:20px}
+    .small{font-size:13px;color:var(--muted);line-height:1.45}
+    .wrap{max-width:820px;margin:auto;padding:14px}
+    .card{background:rgba(23,32,51,.98);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px;box-shadow:0 12px 30px rgba(0,0,0,.25);animation:fade .18s ease both}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    input,select,textarea{width:100%;padding:14px;border-radius:13px;border:1px solid #3a4b68;background:#0b1220;color:white;font-size:16px}
+    textarea{min-height:80px}
     label{display:block;margin:12px 0 6px;color:var(--muted);font-size:14px}
-    input,select,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid #33435f;background:#0f172a;color:var(--text);font-size:16px}
-    textarea{min-height:86px;resize:vertical}
-    button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:14px;color:white;font-size:16px;font-weight:800;cursor:pointer;transition:.12s transform,.12s opacity}
+    button{width:100%;padding:15px;margin-top:10px;border:0;border-radius:15px;color:white;font-size:16px;font-weight:800;cursor:pointer}
     button:active{transform:scale(.98)}
-    .btn-blue{background:var(--blue)}.btn-green{background:var(--green)}.btn-yellow{background:#ca8a04}.btn-red{background:var(--red)}.btn-grey{background:#475569}.btn-purple{background:var(--purple)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-    .grid3 button{font-size:13px;padding:11px 4px;margin-top:0}
-    .stat{background:linear-gradient(180deg,#22314d,#1b2942);padding:13px;border-radius:16px;text-align:center;color:var(--muted)}
-    .stat b{display:block;font-size:25px;color:white;margin-top:3px}
-    .product-title{font-size:25px;font-weight:900;line-height:1.22;margin-bottom:12px}
-    .meta{background:#0f172a;border-radius:16px;padding:13px;line-height:1.8;color:#e5e7eb;font-size:16px}
-    .pill{display:inline-block;padding:7px 11px;background:#25344f;border-radius:999px;margin:9px 5px 0 0;color:#dbeafe;font-size:13px}
+    .btn-blue{background:var(--blue)}.btn-green{background:var(--green)}.btn-yellow{background:var(--yellow)}.btn-red{background:var(--red)}.btn-grey{background:#475569}.btn-purple{background:var(--purple)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .grid3 button{font-size:13px;padding:11px 5px;margin-top:0}
+    .stat{background:linear-gradient(180deg,#253653,#1b2942);border:1px solid #344761;padding:13px;border-radius:16px;text-align:center;color:var(--muted)}
+    .stat b{display:block;color:white;font-size:25px;margin-top:3px}
+    .hero{background:#0b1220;border:1px solid #344761;border-radius:18px;padding:16px;margin-top:10px}
+    .product-title{font-size:27px;font-weight:900;line-height:1.2;margin-bottom:12px}
+    .meta{line-height:1.8;color:#e5e7eb;font-size:16px}
+    .pill{display:inline-block;padding:7px 11px;border-radius:999px;background:#253653;color:#dbeafe;font-size:13px;margin:8px 4px 0 0}
     .hidden{display:none!important}
-    progress{width:100%;height:17px;margin-top:12px}
-    .list-item{padding:12px;border-bottom:1px solid #2e3d58;font-size:15px}
-    .list-item button{font-size:14px;padding:10px;margin-top:8px}
-    .notice{background:#12351f;color:#bbf7d0;border:1px solid #22683a;border-radius:14px;padding:11px;margin-top:10px;font-size:14px}
-    .warning{background:#452414;color:#fed7aa;border:1px solid #9a5a16;border-radius:14px;padding:11px;margin-top:10px;font-size:14px}
-    .suggestions{background:#0f172a;border:1px solid #33435f;border-radius:14px;margin-top:8px;overflow:hidden}
-    .suggestion{padding:11px;border-bottom:1px solid #33435f;cursor:pointer}.suggestion:last-child{border-bottom:0}
-    .bottomNav{position:sticky;bottom:0;background:rgba(8,17,31,.97);backdrop-filter:blur(8px);padding:10px;border-top:1px solid #26344f;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;z-index:20}
+    progress{width:100%;height:17px;margin-top:10px}
+    .notice{padding:11px;border-radius:13px;margin-top:10px;background:#12351f;color:#bbf7d0;border:1px solid #22683a}
+    .warning{padding:11px;border-radius:13px;margin-top:10px;background:#452414;color:#fed7aa;border:1px solid #9a5a16}
+    .danger{padding:11px;border-radius:13px;margin-top:10px;background:#4a1212;color:#fecaca;border:1px solid #933}
+    .list-item{padding:12px;border-bottom:1px solid #344761}.list-item button{font-size:13px;padding:10px;margin-top:8px}
+    .suggestions{background:#0b1220;border:1px solid #344761;border-radius:13px;margin-top:8px;overflow:hidden}.suggestion{padding:11px;border-bottom:1px solid #344761}.suggestion:last-child{border-bottom:0}
+    .bottomNav{position:sticky;bottom:0;z-index:30;background:rgba(7,17,31,.97);border-top:1px solid var(--line);padding:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
     .bottomNav button{margin:0;padding:10px 2px;font-size:11px;border-radius:12px;background:#334155}
-    #reader{width:100%;background:#0f172a;border-radius:14px;overflow:hidden;margin-top:10px}
-    .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99}
-    .modal{background:#111827;border:1px solid #334155;border-radius:18px;padding:16px;width:100%;max-width:430px;box-shadow:0 25px 60px rgba(0,0,0,.5);animation:pop .16s ease both}
-    @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
-    .doneFlash{animation:flash .5s ease}
-    @keyframes flash{0%{box-shadow:0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 0 6px rgba(34,197,94,.25)}100%{box-shadow:0 0 0 rgba(34,197,94,0)}}
+    .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;z-index:100}
+    .modal{width:100%;max-width:450px;background:#111827;border:1px solid #344761;border-radius:18px;padding:16px;box-shadow:0 25px 65px rgba(0,0,0,.55)}
+    #reader{width:100%;background:#0b1220;border-radius:14px;overflow:hidden;margin-top:10px}
   </style>
 </head>
 <body>
 <header>
-  <h1>Indian Aisle Order Assistant</h1>
-  <div class="small">Daily saved orders • Notes • Bay popup • New product • Scanner • Clean dashboard</div>
+  <h1>Indian Aisle Bay Ordering</h1>
+  <div class="small">Enter bay → add/order products in that bay → finish bay → next bay</div>
 </header>
 
 <div class="wrap">
-  <div class="card" id="homeCard">
+  <section class="card" id="homeCard">
     <h2>Dashboard</h2>
     <div class="grid">
-      <div class="stat">Remaining <b id="hRemaining">0</b></div>
+      <div class="stat">Bay <b id="hBay">-</b></div>
+      <div class="stat">Bay Items <b id="hBayItems">0</b></div>
       <div class="stat">Ordered <b id="hOrdered">0</b></div>
-      <div class="stat">Skipped <b id="hSkipped">0</b></div>
-      <div class="stat">Missing Bay <b id="hMissingBay">0</b></div>
+      <div class="stat">Remaining <b id="hRemaining">0</b></div>
     </div>
     <progress id="homeProgress" value="0" max="100"></progress>
 
-    <label>Today’s order date</label>
-    <input type="date" id="orderDate"/>
-
-    <label>Select Excel file</label>
-    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv"/>
-
-    <label>Sort order</label>
-    <select id="sortMode">
-      <option value="original">Keep Excel walking order</option>
-      <option value="bay">Bay then walking order</option>
-      <option value="description">Description A-Z</option>
-      <option value="inventoryLow">Lowest inventory first</option>
-    </select>
-
+    <label>Order date</label>
+    <input type="date" id="orderDate">
+    <label>Upload Excel</label>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     <button class="btn-blue" onclick="loadExcel()">Load Excel</button>
-    <button class="btn-green" onclick="goOrdering()">Start / Resume</button>
-    <button class="btn-purple" onclick="goReview()">Review Worksheet</button>
-    <button class="btn-yellow" onclick="openNewProductModal()">Add New Product</button>
+    <button class="btn-green" onclick="openBayStart()">Start Ordering / Enter Bay</button>
+    <button class="btn-purple" onclick="goBayManager()">Add Products to Bays</button>
+    <button class="btn-grey" onclick="goReview()">Review Worksheet</button>
+    <div class="notice" id="resumeInfo">Current bay: Not started</div>
+  </section>
 
-    <div class="notice" id="stoppedBayHome">Stopped position: Not started</div>
-    <div class="warning" id="bayWarning">Assign bays as you go. When all bays are assigned, the app will show a completion animation.</div>
-  </div>
-
-  <div class="card hidden" id="notesCard">
-    <h2>Today’s Notes</h2>
-    <textarea id="notesText" placeholder="Example: Don't order extra Maggi today..." oninput="save()"></textarea>
-  </div>
-
-  <div class="card hidden" id="orderCard">
+  <section class="card hidden" id="bayOrderCard">
     <div class="grid3">
-      <button class="btn-red" onclick="stopHere()">Stop</button>
       <button class="btn-grey" onclick="goHome()">Home</button>
-      <button class="btn-purple" onclick="goReview()">Review</button>
+      <button class="btn-yellow" onclick="finishBay()">Bay Finished</button>
+      <button class="btn-blue" onclick="openBayStart()">Next Bay</button>
     </div>
-
-    <label>Search</label>
-    <input id="searchBox" placeholder="Search item no, barcode, description, bay" oninput="renderSuggestions();renderCurrent();"/>
-    <div id="suggestions" class="suggestions hidden"></div>
-
+    <div class="notice" id="currentBayText">Current bay: -</div>
+    <label>Search inside current bay</label>
+    <input id="searchBox" placeholder="Search description, item no, barcode" oninput="renderCurrentBayProduct()">
     <div class="grid">
-      <button class="btn-purple" onclick="startVoiceSearch()">🎤 Voice</button>
-      <button class="btn-blue" onclick="toggleScanner()">📷 Barcode</button>
+      <button class="btn-blue" onclick="toggleScanner()">📷 Scan</button>
+      <button class="btn-purple" onclick="openAddProductToCurrentBay()">+ Product to Bay</button>
     </div>
     <div id="reader" class="hidden"></div>
-
-    <div class="product-title" id="productTitle"></div>
-    <div class="meta" id="productMeta"></div>
-    <span class="pill" id="positionPill"></span>
-    <span class="pill">Qty: 1</span>
-
+    <div class="hero">
+      <div class="product-title" id="productTitle">No product selected</div>
+      <div class="meta" id="productMeta"></div>
+      <span class="pill" id="linePill"></span>
+    </div>
     <button class="btn-green" onclick="markCurrent('ordered')">ORDERED</button>
     <button class="btn-yellow" onclick="markCurrent('skipped')">SKIP</button>
     <button class="btn-grey" onclick="moveToEnd()">Check Later</button>
-    <button class="btn-red" onclick="undoLast()">Undo Last</button>
-  </div>
+    <button class="btn-red" onclick="undoLast()">Undo</button>
+  </section>
 
-  <div class="card hidden" id="reviewCard">
+  <section class="card hidden" id="bayManagerCard">
+    <h2>Add Products to Bays</h2>
+    <label>Select / enter bay</label>
+    <input id="managerBayInput" placeholder="Example: Bay 4">
+    <button class="btn-green" onclick="openAddProductToManagerBay()">Add Product to This Bay</button>
+    <button class="btn-blue" onclick="assignSelectedBayToNoBay()">Assign no-bay products to this bay</button>
+    <button class="btn-grey" onclick="goHome()">Back Home</button>
+    <div id="bayListBody"></div>
+  </section>
+
+  <section class="card hidden" id="reviewCard">
     <h2 id="listTitle">Review</h2>
     <div class="grid3">
-      <button onclick="showList('remaining')">Current</button>
+      <button onclick="showList('currentBay')">This Bay</button>
+      <button onclick="showList('remaining')">Remaining</button>
       <button onclick="showList('ordered')">Ordered</button>
+    </div>
+    <div class="grid3">
       <button onclick="showList('skipped')">Skipped</button>
+      <button onclick="showList('noBay')">No Bay</button>
+      <button onclick="showList('all')">Full List</button>
     </div>
-    <div class="grid">
-      <button class="btn-grey" onclick="showList('all')">Full List</button>
-      <button class="btn-yellow" onclick="showList('missingBay')">No Bay</button>
-    </div>
-    <button class="btn-blue" onclick="goOrdering()">Back to Ordering</button>
-    <button class="btn-green" onclick="exportDailyWorkbook()">Export Daily Excel</button>
-    <button class="btn-purple" onclick="exportUpdatedMaster()">Export Updated Master</button>
+    <button class="btn-green" onclick="exportDailyExcel()">Export Daily Excel</button>
+    <button class="btn-purple" onclick="exportMasterExcel()">Export Updated Master</button>
+    <button class="btn-grey" onclick="goHome()">Home</button>
     <div id="listBody"></div>
-  </div>
-
-  <div class="card hidden" id="completeCard">
-    <h2>Indian Aisle Complete</h2>
-    <p id="completeText"></p>
-    <button class="btn-purple" onclick="goReview()">Review Worksheet</button>
-    <button class="btn-green" onclick="exportDailyWorkbook()">Export Daily Excel</button>
-    <button class="btn-red" onclick="resetProgress()">Reset Progress</button>
-  </div>
+  </section>
 </div>
 
 <div class="bottomNav hidden" id="bottomNav">
   <button onclick="goHome()">Home</button>
-  <button onclick="goOrdering()">Order</button>
-  <button onclick="stopHere()">Stop</button>
+  <button onclick="openBayStart()">Bay</button>
+  <button onclick="goBayManager()">Bays</button>
   <button onclick="goReview()">Review</button>
-  <button onclick="openNewProductModal()">+Item</button>
+  <button onclick="openAddProductToCurrentBay()">+Item</button>
 </div>
 
-<div class="modalBack hidden" id="bayModal">
+<div class="modalBack hidden" id="bayStartModal">
   <div class="modal">
-    <h2>Bay Missing</h2>
-    <div class="small" id="bayItemText"></div>
-    <label>Enter bay number/location</label>
-    <input id="bayInput" placeholder="Example: Bay 3"/>
-    <button class="btn-green" onclick="saveBay()">Save Bay</button>
-    <button class="btn-grey" onclick="skipBayForNow()">Skip for now</button>
+    <h2>Enter Bay to Start</h2>
+    <div class="small">Example: Bay 1, Bay 2, Section A, Left Side.</div>
+    <label>Bay / location</label>
+    <input id="bayStartInput" placeholder="Bay 1">
+    <button class="btn-green" onclick="startBay()">Start Ordering This Bay</button>
+    <button class="btn-grey" onclick="closeBayStart()">Cancel</button>
   </div>
 </div>
 
-<div class="modalBack hidden" id="newProductModal">
+<div class="modalBack hidden" id="productModal">
   <div class="modal">
-    <h2>Add New Product</h2>
-    <input id="npNo" placeholder="Item No"/>
-    <input id="npDesc" placeholder="Description"/>
-    <input id="npInventory" placeholder="Inventory"/>
-    <input id="npBarcode" placeholder="Barcode No"/>
-    <input id="npBay" placeholder="Bay"/>
-    <button class="btn-green" onclick="saveNewProduct()">Save Product</button>
-    <button class="btn-grey" onclick="closeNewProductModal()">Cancel</button>
+    <h2>Add Product</h2>
+    <label>Bay</label>
+    <input id="pBay" placeholder="Bay">
+    <label>Barcode</label>
+    <input id="pBarcode" placeholder="Barcode No">
+    <label>Description</label>
+    <input id="pDesc" placeholder="Description">
+    <label>Item No</label>
+    <input id="pNo" placeholder="Item No">
+    <label>Inventory</label>
+    <input id="pInv" placeholder="Inventory">
+    <button class="btn-green" onclick="saveProduct()">Save Product</button>
+    <button class="btn-grey" onclick="closeProductModal()">Cancel</button>
   </div>
 </div>
 
 <script>
-let items=[], currentIndex=0, historyStack=[], scanner=null, scannerRunning=false, stoppedInfo=null, bayModalIndex=null;
-const STORAGE_KEY="indian_aisle_daily_v6";
+let items=[], currentBay="", currentIndex=-1, historyStack=[], scanner=null, scannerRunning=false;
+const STORE="indian_bay_order_v8";
+orderDate.value=new Date().toISOString().slice(0,10);
 
-document.getElementById("orderDate").value = new Date().toISOString().slice(0,10);
-
-function cleanBarcode(value){
-  if(value===null||value===undefined)return "";
-  if(typeof value==="number")return value.toLocaleString("fullwide",{useGrouping:false,maximumFractionDigits:0}).trim();
-  let text=String(value).trim();
-  if(/^[0-9]+(\.[0-9]+)?e\+?[0-9]+$/i.test(text)){
-    const n=Number(text);
-    if(!Number.isNaN(n))return n.toLocaleString("fullwide",{useGrouping:false,maximumFractionDigits:0}).trim();
-  }
-  return text.replace(/\.0$/,"").replace(/\s/g,"");
-}
-function normaliseHeader(h){return String(h||"").toLowerCase().replace(/\./g,"").replace(/\s+/g,"").trim();}
-function getValue(row,names){const keys=Object.keys(row);for(const name of names){const wanted=normaliseHeader(name);for(const key of keys){if(normaliseHeader(key)===wanted)return row[key]??"";}}return "";}
-function rowToItem(row,index){
-  return {seq:index+1,itemNo:String(getValue(row,["No.","No","Item No","ItemNo"])).trim(),description:String(getValue(row,["Description","Desc"])).trim(),inventory:String(getValue(row,["Inventory","Stock"])).trim(),barcode:cleanBarcode(getValue(row,["Barcode No.","Barcode No","BarcodeNo","Barcode"])),bay:String(getValue(row,["Bay","Location","Shelf"])).trim(),status:"",skipReason:""};
-}
-async function loadExcel(){
-  const file=document.getElementById("fileInput").files[0];
-  if(!file)return alert("Select your Excel file first.");
-  const data=await file.arrayBuffer();
-  const wb=XLSX.read(data,{type:"array"});
-  const ws=wb.Sheets[wb.SheetNames[0]];
-  const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
-  items=rows.map(rowToItem).filter(x=>x.itemNo||x.description);
-  if(!items.length)return alert("No products found. Check headers.");
-  applySort(); currentIndex=0; historyStack=[]; stoppedInfo=null; save(); goHome(); updateStats(); checkAllBaysAssigned();
-}
-function applySort(){
-  const mode=document.getElementById("sortMode").value;
-  if(mode==="bay")items.sort((a,b)=>(a.bay||"").localeCompare(b.bay||"",undefined,{numeric:true})||a.seq-b.seq);
-  if(mode==="description")items.sort((a,b)=>a.description.localeCompare(b.description));
-  if(mode==="inventoryLow")items.sort((a,b)=>(Number(a.inventory)||0)-(Number(b.inventory)||0));
-  items.forEach((x,i)=>x.seq=i+1);
-}
-function hideAll(){["homeCard","notesCard","orderCard","reviewCard","completeCard"].forEach(id=>document.getElementById(id).classList.add("hidden"));document.getElementById("bottomNav").classList.toggle("hidden",!items.length);}
-function goHome(){hideAll();document.getElementById("homeCard").classList.remove("hidden");document.getElementById("notesCard").classList.remove("hidden");updateStats();}
-function goOrdering(){if(!items.length)return goHome();hideAll();document.getElementById("orderCard").classList.remove("hidden");renderCurrent();}
-function goReview(){if(!items.length)return goHome();hideAll();document.getElementById("reviewCard").classList.remove("hidden");showList("remaining");updateStats();}
-function visibleUnmarked(){const q=(document.getElementById("searchBox")?.value||"").toLowerCase().trim();return items.filter(x=>!x.status&&(!q||matchItem(x,q)));}
-function matchItem(x,q){return x.itemNo.toLowerCase().includes(q)||x.description.toLowerCase().includes(q)||x.barcode.toLowerCase().includes(q)||(x.bay||"").toLowerCase().includes(q);}
-function updateStats(){
-  const total=items.length, ordered=items.filter(x=>x.status==="ordered").length, skipped=items.filter(x=>x.status==="skipped").length, remaining=items.filter(x=>!x.status).length, missing=items.filter(x=>!x.bay).length;
-  ["hRemaining","hOrdered","hSkipped","hMissingBay"].forEach((id,i)=>{document.getElementById(id).textContent=[remaining,ordered,skipped,missing][i]});
-  document.getElementById("homeProgress").value=total?((ordered+skipped)/total)*100:0;
-  const stopText=stoppedInfo?`Stopped position: ${stoppedInfo.bay||"No bay"} | Line ${stoppedInfo.seq} | ${stoppedInfo.description}`:"Stopped position: Not started";
-  document.getElementById("stoppedBayHome").textContent=stopText;
-}
-function renderCurrent(){
-  updateStats();renderSuggestions();
-  if(items.filter(x=>!x.status).length===0)return complete();
-  const list=visibleUnmarked();
-  if(!list.length){document.getElementById("productTitle").textContent="No matching items";document.getElementById("productMeta").innerHTML="Clear search.";return;}
-  const item=list[0];currentIndex=items.indexOf(item);
-  if(!item.bay && !item.bayAsked){openBayModal(currentIndex);item.bayAsked=true;save();}
-  document.getElementById("productTitle").textContent=item.description||"(No description)";
-  document.getElementById("productMeta").innerHTML=`Item No: <b>${item.itemNo||"-"}</b><br>Inventory: <b>${item.inventory||"-"}</b><br>Barcode: <b>${item.barcode||"-"}</b><br>Bay: <b>${item.bay||"NOT ASSIGNED"}</b>`;
-  document.getElementById("positionPill").textContent=`Line ${item.seq}`;
-}
-function renderSuggestions(){
-  const box=document.getElementById("searchBox"), div=document.getElementById("suggestions"); if(!box||!div)return;
-  const q=box.value.toLowerCase().trim(); if(!q){div.classList.add("hidden");div.innerHTML="";return;}
-  const matches=items.filter(x=>matchItem(x,q)).slice(0,6); if(!matches.length){div.classList.add("hidden");div.innerHTML="";return;}
-  div.classList.remove("hidden"); div.innerHTML=matches.map(x=>`<div class="suggestion" onclick="selectSuggestion('${escJs(x.itemNo)}','${escJs(x.barcode)}')"><b>${esc(x.description)}</b><br><span class="small">Item ${esc(x.itemNo)} | Bay ${esc(x.bay||"-")} | ${esc(x.status||"remaining")}</span></div>`).join("");
-}
-function selectSuggestion(no,bar){const f=items.find(x=>x.itemNo===no&&x.barcode===bar);if(!f)return;document.getElementById("searchBox").value=f.itemNo||f.barcode||f.description;renderCurrent();}
-function markCurrent(status){const item=items[currentIndex];if(!item||item.status)return;historyStack.push({index:currentIndex,oldStatus:item.status});item.status=status;item.orderDate=document.getElementById("orderDate").value;save();renderCurrent();}
-function moveToEnd(){const item=items[currentIndex];if(!item||item.status)return;items.push(items.splice(currentIndex,1)[0]);items.forEach((x,i)=>x.seq=i+1);save();renderCurrent();}
-function undoLast(){const last=historyStack.pop();if(!last)return alert("Nothing to undo.");if(items[last.index])items[last.index].status=last.oldStatus;save();renderCurrent();}
-function stopHere(){if(!items.length)return;const item=items[currentIndex]||items.find(x=>!x.status);if(item)stoppedInfo={seq:item.seq,itemNo:item.itemNo,description:item.description,bay:item.bay||"No bay"};save();updateStats();alert("Stop point saved.");}
-function openBayModal(idx){bayModalIndex=idx;const item=items[idx];document.getElementById("bayItemText").innerHTML=`<b>${esc(item.description)}</b><br>Item: ${esc(item.itemNo)}`;document.getElementById("bayInput").value="";document.getElementById("bayModal").classList.remove("hidden");setTimeout(()=>document.getElementById("bayInput").focus(),150);}
-function saveBay(){const bay=document.getElementById("bayInput").value.trim();if(!bay)return alert("Enter bay first.");items[bayModalIndex].bay=bay;document.getElementById("bayModal").classList.add("hidden");save();renderCurrent();checkAllBaysAssigned();}
-function skipBayForNow(){document.getElementById("bayModal").classList.add("hidden");renderCurrent();}
-function checkAllBaysAssigned(){if(items.length&&items.every(x=>x.bay)){document.getElementById("homeCard").classList.add("doneFlash");document.getElementById("bayWarning").textContent="All bays assigned. Indian aisle master list is ready.";setTimeout(()=>document.getElementById("homeCard").classList.remove("doneFlash"),700);}}
-function openNewProductModal(){document.getElementById("newProductModal").classList.remove("hidden");}
-function closeNewProductModal(){document.getElementById("newProductModal").classList.add("hidden");}
-function saveNewProduct(){
-  const item={seq:items.length+1,itemNo:npNo.value.trim(),description:npDesc.value.trim(),inventory:npInventory.value.trim(),barcode:cleanBarcode(npBarcode.value),bay:npBay.value.trim(),status:"",newProduct:true};
-  if(!item.itemNo&&!item.description)return alert("Add item no or description.");
-  items.push(item);["npNo","npDesc","npInventory","npBarcode","npBay"].forEach(id=>document.getElementById(id).value="");closeNewProductModal();save();updateStats();alert("New product added.");
-}
-function showList(type){
-  const title=document.getElementById("listTitle"), body=document.getElementById("listBody");let rows=[];
-  if(type==="all"){title.textContent="Full Worksheet";rows=items}
-  if(type==="remaining"){title.textContent="Current / Remaining";rows=items.filter(x=>!x.status)}
-  if(type==="ordered"){title.textContent="Ordered Today";rows=items.filter(x=>x.status==="ordered")}
-  if(type==="skipped"){title.textContent="Skipped Today";rows=items.filter(x=>x.status==="skipped")}
-  if(type==="missingBay"){title.textContent="Products Without Bay";rows=items.filter(x=>!x.bay)}
-  body.innerHTML=rows.length?rows.map(x=>`<div class="list-item"><b>${esc(x.description)}</b><br><span class="small">Line ${x.seq} | Bay ${esc(x.bay||"-")} | Item ${esc(x.itemNo)} | Inv ${esc(x.inventory)} | Barcode ${esc(x.barcode)} | ${esc(x.status||"remaining")}</span>${!x.bay?`<button class="btn-purple" onclick="openBayModal(${items.indexOf(x)})">Add Bay</button>`:""}${!x.status?`<button class="btn-green" onclick="markSpecific(${items.indexOf(x)},'ordered')">Mark Ordered</button><button class="btn-yellow" onclick="markSpecific(${items.indexOf(x)},'skipped')">Mark Skipped</button>`:""}</div>`).join(""):"<p class='small'>No items here.</p>";
-}
-function markSpecific(idx,status){currentIndex=idx;markCurrent(status);showList("remaining")}
-function complete(){hideAll();document.getElementById("completeCard").classList.remove("hidden");const o=items.filter(x=>x.status==="ordered").length,s=items.filter(x=>x.status==="skipped").length;document.getElementById("completeText").textContent=`Ordered: ${o}. Skipped: ${s}. Total: ${items.length}.`;}
-function makeRows(){const date=document.getElementById("orderDate").value;return items.map(x=>({"Line":x.seq,"Bay":x.bay,"No.":x.itemNo,"Description":x.description,"Inventory":x.inventory,"Barcode No.":x.barcode,[date]:x.status||"","Notes":document.getElementById("notesText").value,"New Product":x.newProduct?"YES":""}));}
-function exportDailyWorkbook(){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(makeRows()),"Indian_Aisle_Order");XLSX.writeFile(wb,`Indian_Aisle_Order_${document.getElementById("orderDate").value}.xlsx`);}
-function exportUpdatedMaster(){const rows=items.map(x=>({"Line":x.seq,"Bay":x.bay,"No.":x.itemNo,"Description":x.description,"Inventory":x.inventory,"Barcode No.":x.barcode}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Updated_Master");XLSX.writeFile(wb,"Indian_Aisle_Updated_Master.xlsx");}
-function resetProgress(){if(!confirm("Reset all progress?"))return;items.forEach(x=>{x.status="";x.skipReason=""});historyStack=[];stoppedInfo=null;save();goOrdering();}
-function startVoiceSearch(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return alert("Voice search works best in Chrome on Android.");const rec=new SR();rec.lang="en-AU";rec.onresult=e=>{document.getElementById("searchBox").value=e.results[0][0].transcript;renderCurrent()};rec.start();}
-async function toggleScanner(){
-  const reader=document.getElementById("reader");
-  if(scannerRunning&&scanner){await scanner.stop();scannerRunning=false;reader.classList.add("hidden");return}
-  reader.classList.remove("hidden"); if(!scanner)scanner=new Html5Qrcode("reader");
-  try{await scanner.start({facingMode:"environment"},{fps:15,qrbox:{width:280,height:160},aspectRatio:1.777},decoded=>{document.getElementById("searchBox").value=cleanBarcode(decoded);renderCurrent();if(navigator.vibrate)navigator.vibrate(120);});scannerRunning=true}
-  catch(e){alert("Scanner needs camera permission. On phone, use Chrome and open through HTTPS/local server.");reader.classList.add("hidden")}
-}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({items,historyStack,stoppedInfo,notes:document.getElementById("notesText").value,date:document.getElementById("orderDate").value}))}
+function cleanBarcode(v){if(v==null)return "";if(typeof v==="number")return v.toLocaleString("fullwide",{useGrouping:false,maximumFractionDigits:0}).trim();let t=String(v).trim();if(/^[0-9]+(\.[0-9]+)?e\+?[0-9]+$/i.test(t)){let n=Number(t);if(!Number.isNaN(n))return n.toLocaleString("fullwide",{useGrouping:false,maximumFractionDigits:0}).trim()}return t.replace(/\.0$/,"").replace(/\s/g,"")}
+function norm(h){return String(h||"").toLowerCase().replace(/\./g,"").replace(/\s+/g,"").trim()}
+function getVal(row,names){let keys=Object.keys(row);for(let n of names){let w=norm(n);for(let k of keys){if(norm(k)===w)return row[k]??""}}return ""}
+function rowToItem(row,i){return{seq:i+1,itemNo:String(getVal(row,["No.","No","Item No","ItemNo"])).trim(),description:String(getVal(row,["Description","Desc"])).trim(),inventory:String(getVal(row,["Inventory","Stock"])).trim(),barcode:cleanBarcode(getVal(row,["Barcode No.","Barcode No","BarcodeNo","Barcode"])),bay:String(getVal(row,["Bay","Location","Shelf"])).trim(),status:"",orderDate:""}}
+async function loadExcel(){let f=fileInput.files[0];if(!f)return alert("Select Excel file first.");let data=await f.arrayBuffer();let wb=XLSX.read(data,{type:"array"});let rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});items=rows.map(rowToItem).filter(x=>x.itemNo||x.description||x.barcode);items.forEach((x,i)=>x.seq=i+1);save();updateStats();alert("Excel loaded. Now enter bay to start ordering.")}
+function hideAll(){["homeCard","bayOrderCard","bayManagerCard","reviewCard"].forEach(id=>document.getElementById(id).classList.add("hidden"));bottomNav.classList.toggle("hidden",!items.length)}
+function goHome(){hideAll();homeCard.classList.remove("hidden");updateStats()}
+function openBayStart(){bayStartModal.classList.remove("hidden");bayStartInput.value=currentBay||"";setTimeout(()=>bayStartInput.focus(),100)}
+function closeBayStart(){bayStartModal.classList.add("hidden")}
+function startBay(){let bay=bayStartInput.value.trim();if(!bay)return alert("Enter bay first.");currentBay=bay;bayStartModal.classList.add("hidden");goBayOrder()}
+function goBayOrder(){if(!items.length)return alert("Load Excel first.");hideAll();bayOrderCard.classList.remove("hidden");currentBayText.textContent="Current bay: "+currentBay;renderCurrentBayProduct();updateStats()}
+function goBayManager(){hideAll();bayManagerCard.classList.remove("hidden");managerBayInput.value=currentBay||"";renderBayManager()}
+function goReview(){hideAll();reviewCard.classList.remove("hidden");showList("currentBay")}
+function bayItems(){return items.filter(x=>(x.bay||"").toLowerCase()===currentBay.toLowerCase())}
+function bayRemaining(){let q=(searchBox?.value||"").toLowerCase().trim();return bayItems().filter(x=>!x.status&&(!q||matchItem(x,q)))}
+function matchItem(x,q){return x.description.toLowerCase().includes(q)||x.itemNo.toLowerCase().includes(q)||x.barcode.toLowerCase().includes(q)}
+function renderCurrentBayProduct(){let list=bayRemaining();if(!currentBay){productTitle.textContent="Enter bay first";productMeta.innerHTML="Tap Next Bay / Start Bay.";return}if(!list.length){productTitle.textContent="Bay complete or no products found";productMeta.innerHTML=`Bay: <b>${esc(currentBay)}</b><br>Tap <b>Bay Finished</b> or add products to this bay.`;linePill.textContent="";return}let item=list[0];currentIndex=items.indexOf(item);productTitle.textContent=item.description||"(No description)";productMeta.innerHTML=`Item No: <b>${esc(item.itemNo||"-")}</b><br>Inventory: <b>${esc(item.inventory||"-")}</b><br>Barcode: <b>${esc(item.barcode||"-")}</b><br>Bay: <b>${esc(item.bay||currentBay)}</b>`;linePill.textContent="Line "+item.seq;updateStats()}
+function markCurrent(status){let item=items[currentIndex];if(!item||item.status)return;historyStack.push({index:currentIndex,old:item.status});item.status=status;item.orderDate=orderDate.value;if(!item.bay)item.bay=currentBay;save();renderCurrentBayProduct()}
+function moveToEnd(){let item=items[currentIndex];if(!item)return;items.push(items.splice(currentIndex,1)[0]);items.forEach((x,i)=>x.seq=i+1);save();renderCurrentBayProduct()}
+function undoLast(){let h=historyStack.pop();if(!h)return alert("Nothing to undo.");if(items[h.index])items[h.index].status=h.old;save();renderCurrentBayProduct()}
+function finishBay(){let rem=bayItems().filter(x=>!x.status).length;if(rem>0&&!confirm(`There are ${rem} remaining items in ${currentBay}. Finish bay anyway?`))return;alert(`${currentBay} finished.`);openBayStart()}
+function updateStats(){let b=bayItems(), total=b.length, ordered=b.filter(x=>x.status==="ordered").length, rem=b.filter(x=>!x.status).length, skipped=b.filter(x=>x.status==="skipped").length;hBay.textContent=currentBay||"-";hBayItems.textContent=total;hOrdered.textContent=ordered;hRemaining.textContent=rem;homeProgress.value=total?((ordered+skipped)/total)*100:0;resumeInfo.textContent=currentBay?`Current bay: ${currentBay} | Remaining ${rem}`:"Current bay: Not started"}
+function openAddProductToCurrentBay(){if(!currentBay)return openBayStart();pBay.value=currentBay;openProductModal()}
+function openAddProductToManagerBay(){let bay=managerBayInput.value.trim();if(!bay)return alert("Enter bay first.");pBay.value=bay;openProductModal()}
+function openProductModal(){productModal.classList.remove("hidden");setTimeout(()=>pBarcode.focus(),100)}
+function closeProductModal(){productModal.classList.add("hidden")}
+function saveProduct(){let bay=pBay.value.trim()||currentBay;if(!bay)return alert("Enter bay.");let item={seq:items.length+1,itemNo:pNo.value.trim(),description:pDesc.value.trim(),inventory:pInv.value.trim(),barcode:cleanBarcode(pBarcode.value),bay,status:"",orderDate:"",newProduct:true};if(!item.description&&!item.itemNo&&!item.barcode)return alert("Enter product details.");items.push(item);["pBay","pBarcode","pDesc","pNo","pInv"].forEach(id=>document.getElementById(id).value="");closeProductModal();save();updateStats();renderCurrentBayProduct();renderBayManager()}
+function assignSelectedBayToNoBay(){let bay=managerBayInput.value.trim();if(!bay)return alert("Enter bay first.");let count=0;items.forEach(x=>{if(!x.bay){x.bay=bay;count++}});save();renderBayManager();alert(`${count} products assigned to ${bay}.`)}
+function renderBayManager(){let bays=[...new Set(items.map(x=>x.bay).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));bayListBody.innerHTML="<h2>Bays</h2>"+(bays.length?bays.map(b=>{let total=items.filter(x=>x.bay===b).length;let rem=items.filter(x=>x.bay===b&&!x.status).length;return `<div class="list-item"><b>${esc(b)}</b><br><span class="small">${total} products | ${rem} remaining</span><button class="btn-blue" onclick="currentBay='${escJs(b)}';goBayOrder()">Open Bay</button></div>`}).join(""):"<p class='small'>No bays added yet.</p>")}
+function showList(type){let rows=[],title="";if(type==="currentBay"){title="Current Bay: "+(currentBay||"-");rows=bayItems()}if(type==="remaining"){title="All Remaining";rows=items.filter(x=>!x.status)}if(type==="ordered"){title="Ordered";rows=items.filter(x=>x.status==="ordered")}if(type==="skipped"){title="Skipped";rows=items.filter(x=>x.status==="skipped")}if(type==="noBay"){title="No Bay";rows=items.filter(x=>!x.bay)}if(type==="all"){title="Full List";rows=items}listTitle.textContent=title;listBody.innerHTML=rows.length?rows.map(x=>`<div class="list-item"><b>${esc(x.description)}</b><br><span class="small">Bay ${esc(x.bay||"-")} | Item ${esc(x.itemNo)} | Inv ${esc(x.inventory)} | Barcode ${esc(x.barcode)} | ${esc(x.status||"remaining")}</span>${!x.status?`<button class="btn-green" onclick="markSpecific(${items.indexOf(x)},'ordered')">Mark Ordered</button><button class="btn-yellow" onclick="markSpecific(${items.indexOf(x)},'skipped')">Mark Skipped</button>`:""}</div>`).join(""):"<p class='small'>No items.</p>"}
+function markSpecific(i,status){currentIndex=i;markCurrent(status);showList("remaining")}
+function exportDailyExcel(){let date=orderDate.value;let rows=items.map(x=>({"Bay":x.bay,"No.":x.itemNo,"Description":x.description,"Inventory":x.inventory,"Barcode No.":x.barcode,[date]:x.status||""}));let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),`Order_${date}`);XLSX.writeFile(wb,`Indian_Aisle_Order_${date}.xlsx`)}
+function exportMasterExcel(){let rows=items.map(x=>({"Bay":x.bay,"No.":x.itemNo,"Description":x.description,"Inventory":x.inventory,"Barcode No.":x.barcode}));let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Master");XLSX.writeFile(wb,"Indian_Aisle_Master_With_Bays.xlsx")}
+async function toggleScanner(){if(scannerRunning&&scanner){await scanner.stop();scannerRunning=false;reader.classList.add("hidden");return}reader.classList.remove("hidden");scanner=new Html5Qrcode("reader");try{await scanner.start({facingMode:"environment"},{fps:15,qrbox:{width:280,height:160}},code=>{searchBox.value=cleanBarcode(code);renderCurrentBayProduct();if(navigator.vibrate)navigator.vibrate(100)});scannerRunning=true}catch(e){alert("Scanner needs camera permission. Use Chrome and HTTPS/local server.")}}
+function save(){localStorage.setItem(STORE,JSON.stringify({items,currentBay,historyStack,date:orderDate.value}))}
 function esc(t){return String(t??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function escJs(t){return String(t??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
-(function init(){const saved=localStorage.getItem(STORAGE_KEY);if(!saved)return;try{const d=JSON.parse(saved);items=d.items||[];historyStack=d.historyStack||[];stoppedInfo=d.stoppedInfo||null;if(d.notes)document.getElementById("notesText").value=d.notes;if(d.date)document.getElementById("orderDate").value=d.date;updateStats()}catch(e){}})();
+(function init(){let s=localStorage.getItem(STORE);if(!s)return;try{let d=JSON.parse(s);items=d.items||[];currentBay=d.currentBay||"";historyStack=d.historyStack||[];if(d.date)orderDate.value=d.date;updateStats()}catch(e){}})()
 </script>
 </body>
 </html>
