@@ -67,6 +67,7 @@
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     <button class="btn-blue" onclick="loadExcel()">Load Excel</button>
     <button class="btn-green" onclick="openBayStart()">Start Ordering / Enter Bay</button>
+    <button class="btn-purple" onclick="goProductPicker()">Search / Choose Products</button>
     <button class="btn-purple" onclick="goBayManager()">Add Products to Bays</button>
     <button class="btn-grey" onclick="goReview()">Review Worksheet</button>
     <div class="notice" id="resumeInfo">Current bay: Not started</div>
@@ -95,6 +96,18 @@
     <button class="btn-yellow" onclick="markCurrent('skipped')">SKIP</button>
     <button class="btn-grey" onclick="moveToEnd()">Check Later</button>
     <button class="btn-red" onclick="undoLast()">Undo</button>
+  </section>
+
+  <section class="card hidden" id="productPickerCard">
+    <h2>Search Products From Excel</h2>
+    <div class="small">Search your full Excel product list, then choose a product and add it to the current bay.</div>
+    <label>Search product</label>
+    <input id="productPickerSearch" placeholder="Search item no, barcode, description, inventory" oninput="renderProductPicker()">
+    <div class="grid">
+      <button class="btn-green" onclick="goBayOrder()">Back to Current Bay</button>
+      <button class="btn-grey" onclick="goHome()">Home</button>
+    </div>
+    <div id="productPickerBody"></div>
   </section>
 
   <section class="card hidden" id="bayManagerCard">
@@ -129,7 +142,7 @@
 <div class="bottomNav hidden" id="bottomNav">
   <button onclick="goHome()">Home</button>
   <button onclick="openBayStart()">Bay</button>
-  <button onclick="goBayManager()">Bays</button>
+  <button onclick="goProductPicker()">List</button>
   <button onclick="goReview()">Review</button>
   <button onclick="openAddProductToCurrentBay()">+Item</button>
 </div>
@@ -173,12 +186,13 @@ function norm(h){return String(h||"").toLowerCase().replace(/\./g,"").replace(/\
 function getVal(row,names){let keys=Object.keys(row);for(let n of names){let w=norm(n);for(let k of keys){if(norm(k)===w)return row[k]??""}}return ""}
 function rowToItem(row,i){return{seq:i+1,itemNo:String(getVal(row,["No.","No","Item No","ItemNo"])).trim(),description:String(getVal(row,["Description","Desc"])).trim(),inventory:String(getVal(row,["Inventory","Stock"])).trim(),barcode:cleanBarcode(getVal(row,["Barcode No.","Barcode No","BarcodeNo","Barcode"])),bay:String(getVal(row,["Bay","Location","Shelf"])).trim(),status:"",orderDate:""}}
 async function loadExcel(){let f=fileInput.files[0];if(!f)return alert("Select Excel file first.");let data=await f.arrayBuffer();let wb=XLSX.read(data,{type:"array"});let rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});items=rows.map(rowToItem).filter(x=>x.itemNo||x.description||x.barcode);items.forEach((x,i)=>x.seq=i+1);save();updateStats();alert("Excel loaded. Now enter bay to start ordering.")}
-function hideAll(){["homeCard","bayOrderCard","bayManagerCard","reviewCard"].forEach(id=>document.getElementById(id).classList.add("hidden"));bottomNav.classList.toggle("hidden",!items.length)}
+function hideAll(){["homeCard","bayOrderCard","productPickerCard","bayManagerCard","reviewCard"].forEach(id=>document.getElementById(id).classList.add("hidden"));bottomNav.classList.toggle("hidden",!items.length)}
 function goHome(){hideAll();homeCard.classList.remove("hidden");updateStats()}
 function openBayStart(){bayStartModal.classList.remove("hidden");bayStartInput.value=currentBay||"";setTimeout(()=>bayStartInput.focus(),100)}
 function closeBayStart(){bayStartModal.classList.add("hidden")}
 function startBay(){let bay=bayStartInput.value.trim();if(!bay)return alert("Enter bay first.");currentBay=bay;bayStartModal.classList.add("hidden");goBayOrder()}
 function goBayOrder(){if(!items.length)return alert("Load Excel first.");hideAll();bayOrderCard.classList.remove("hidden");currentBayText.textContent="Current bay: "+currentBay;renderCurrentBayProduct();updateStats()}
+function goProductPicker(){if(!items.length)return alert("Load Excel first.");hideAll();productPickerCard.classList.remove("hidden");renderProductPicker()}
 function goBayManager(){hideAll();bayManagerCard.classList.remove("hidden");managerBayInput.value=currentBay||"";renderBayManager()}
 function goReview(){hideAll();reviewCard.classList.remove("hidden");showList("currentBay")}
 function bayItems(){return items.filter(x=>(x.bay||"").toLowerCase()===currentBay.toLowerCase())}
@@ -196,6 +210,56 @@ function openProductModal(){productModal.classList.remove("hidden");setTimeout((
 function closeProductModal(){productModal.classList.add("hidden")}
 function saveProduct(){let bay=pBay.value.trim()||currentBay;if(!bay)return alert("Enter bay.");let item={seq:items.length+1,itemNo:pNo.value.trim(),description:pDesc.value.trim(),inventory:pInv.value.trim(),barcode:cleanBarcode(pBarcode.value),bay,status:"",orderDate:"",newProduct:true};if(!item.description&&!item.itemNo&&!item.barcode)return alert("Enter product details.");items.push(item);["pBay","pBarcode","pDesc","pNo","pInv"].forEach(id=>document.getElementById(id).value="");closeProductModal();save();updateStats();renderCurrentBayProduct();renderBayManager()}
 function assignSelectedBayToNoBay(){let bay=managerBayInput.value.trim();if(!bay)return alert("Enter bay first.");let count=0;items.forEach(x=>{if(!x.bay){x.bay=bay;count++}});save();renderBayManager();alert(`${count} products assigned to ${bay}.`)}
+
+function renderProductPicker(){
+  let q=(productPickerSearch.value||"").toLowerCase().trim();
+  let rows=items.filter(x=>{
+    if(!q) return true;
+    return (x.description||"").toLowerCase().includes(q) ||
+           (x.itemNo||"").toLowerCase().includes(q) ||
+           (x.barcode||"").toLowerCase().includes(q) ||
+           (x.inventory||"").toLowerCase().includes(q) ||
+           (x.bay||"").toLowerCase().includes(q);
+  }).slice(0,120);
+
+  productPickerBody.innerHTML = rows.length ? rows.map(x=>`
+    <div class="list-item">
+      <b>${esc(x.description)}</b><br>
+      <span class="small">
+        Bay ${esc(x.bay||"-")} | Item ${esc(x.itemNo)} | Inv ${esc(x.inventory)} | Barcode ${esc(x.barcode)} | ${esc(x.status||"remaining")}
+      </span>
+      <button class="btn-blue" onclick="selectProductForCurrentBay(${items.indexOf(x)})">Choose for Current Bay</button>
+      <button class="btn-green" onclick="openProductInOrdering(${items.indexOf(x)})">Open / Order This Product</button>
+    </div>
+  `).join("") : "<p class='small'>No products found.</p>";
+}
+
+function selectProductForCurrentBay(index){
+  if(!currentBay){
+    alert("Enter/start a bay first.");
+    openBayStart();
+    return;
+  }
+  items[index].bay=currentBay;
+  save();
+  alert("Product added to " + currentBay);
+  renderProductPicker();
+}
+
+function openProductInOrdering(index){
+  if(!items[index].bay && currentBay){
+    items[index].bay=currentBay;
+  }
+  if(items[index].bay){
+    currentBay=items[index].bay;
+  }
+  currentIndex=index;
+  save();
+  goBayOrder();
+  searchBox.value=items[index].itemNo || items[index].barcode || items[index].description;
+  renderCurrentBayProduct();
+}
+
 function renderBayManager(){let bays=[...new Set(items.map(x=>x.bay).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));bayListBody.innerHTML="<h2>Bays</h2>"+(bays.length?bays.map(b=>{let total=items.filter(x=>x.bay===b).length;let rem=items.filter(x=>x.bay===b&&!x.status).length;return `<div class="list-item"><b>${esc(b)}</b><br><span class="small">${total} products | ${rem} remaining</span><button class="btn-blue" onclick="currentBay='${escJs(b)}';goBayOrder()">Open Bay</button></div>`}).join(""):"<p class='small'>No bays added yet.</p>")}
 function showList(type){let rows=[],title="";if(type==="currentBay"){title="Current Bay: "+(currentBay||"-");rows=bayItems()}if(type==="remaining"){title="All Remaining";rows=items.filter(x=>!x.status)}if(type==="ordered"){title="Ordered";rows=items.filter(x=>x.status==="ordered")}if(type==="skipped"){title="Skipped";rows=items.filter(x=>x.status==="skipped")}if(type==="noBay"){title="No Bay";rows=items.filter(x=>!x.bay)}if(type==="all"){title="Full List";rows=items}listTitle.textContent=title;listBody.innerHTML=rows.length?rows.map(x=>`<div class="list-item"><b>${esc(x.description)}</b><br><span class="small">Bay ${esc(x.bay||"-")} | Item ${esc(x.itemNo)} | Inv ${esc(x.inventory)} | Barcode ${esc(x.barcode)} | ${esc(x.status||"remaining")}</span>${!x.status?`<button class="btn-green" onclick="markSpecific(${items.indexOf(x)},'ordered')">Mark Ordered</button><button class="btn-yellow" onclick="markSpecific(${items.indexOf(x)},'skipped')">Mark Skipped</button>`:""}</div>`).join(""):"<p class='small'>No items.</p>"}
 function markSpecific(i,status){currentIndex=i;markCurrent(status);showList("remaining")}
