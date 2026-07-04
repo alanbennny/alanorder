@@ -5,19 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Indian Aisle Ordering</title>
 
-  <!-- This app reads Excel directly in your phone browser -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #111827;
       color: #f9fafb;
     }
-
     header {
       background: #030712;
       padding: 16px;
@@ -26,24 +24,9 @@
       z-index: 10;
       border-bottom: 1px solid #374151;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .small {
-      color: #d1d5db;
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .wrap {
-      padding: 14px;
-      max-width: 720px;
-      margin: auto;
-    }
-
+    h1 { margin: 0; font-size: 22px; }
+    .small { color: #d1d5db; font-size: 13px; margin-top: 4px; }
+    .wrap { padding: 14px; max-width: 760px; margin: auto; }
     .card {
       background: #1f2937;
       padding: 14px;
@@ -51,14 +34,7 @@
       margin-bottom: 14px;
       box-shadow: 0 6px 18px rgba(0,0,0,.25);
     }
-
-    label {
-      display: block;
-      margin: 12px 0 6px;
-      color: #d1d5db;
-      font-size: 14px;
-    }
-
+    label { display: block; margin: 12px 0 6px; color: #d1d5db; font-size: 14px; }
     input, select {
       width: 100%;
       padding: 13px;
@@ -68,7 +44,6 @@
       color: #f9fafb;
       font-size: 16px;
     }
-
     button {
       width: 100%;
       padding: 15px;
@@ -80,20 +55,13 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     .btn-blue { background: #2563eb; }
     .btn-green { background: #16a34a; }
     .btn-yellow { background: #ca8a04; }
     .btn-red { background: #dc2626; }
     .btn-grey { background: #4b5563; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
+    .btn-purple { background: #7c3aed; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
     .stat {
       background: #374151;
       padding: 12px;
@@ -101,21 +69,8 @@
       text-align: center;
       color: #d1d5db;
     }
-
-    .stat b {
-      display: block;
-      font-size: 24px;
-      color: #f9fafb;
-      margin-top: 4px;
-    }
-
-    .product-title {
-      font-size: 25px;
-      font-weight: 800;
-      line-height: 1.25;
-      margin-bottom: 12px;
-    }
-
+    .stat b { display: block; font-size: 24px; color: #f9fafb; margin-top: 4px; }
+    .product-title { font-size: 25px; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
     .meta {
       background: #111827;
       border-radius: 12px;
@@ -124,7 +79,6 @@
       color: #e5e7eb;
       font-size: 16px;
     }
-
     .pill {
       display: inline-block;
       padding: 6px 10px;
@@ -134,21 +88,14 @@
       color: #d1d5db;
       font-size: 14px;
     }
-
-    progress {
-      width: 100%;
-      height: 18px;
-      margin-top: 10px;
-    }
-
+    progress { width: 100%; height: 18px; margin-top: 10px; }
     .hidden { display: none; }
-
     .list-item {
       padding: 11px;
       border-bottom: 1px solid #374151;
       font-size: 15px;
     }
-
+    .list-item button { font-size: 14px; padding: 10px; margin-top: 8px; }
     .danger {
       color: #fecaca;
       background: #7f1d1d;
@@ -157,13 +104,46 @@
       margin-top: 10px;
       font-size: 14px;
     }
+    .suggestions {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .suggestion {
+      padding: 11px;
+      border-bottom: 1px solid #374151;
+      cursor: pointer;
+    }
+    .suggestion:last-child { border-bottom: 0; }
+    .suggestion b { color: #ffffff; }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .tabs button {
+      padding: 10px 6px;
+      font-size: 13px;
+      margin-top: 0;
+      background: #374151;
+    }
+    #reader {
+      width: 100%;
+      background: #111827;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
   </style>
 </head>
 
 <body>
 <header>
   <h1>Indian Aisle Ordering</h1>
-  <div class="small">Uses your Excel columns: No., Description, Inventory, Barcode No.</div>
+  <div class="small">Voice search • Camera barcode scanner • Suggestions • Full list • Ordered list</div>
 </header>
 
 <div class="wrap">
@@ -171,8 +151,7 @@
   <div class="card" id="setupCard">
     <h2>Load Excel File</h2>
     <div class="small">
-      Upload your current Excel export. The app will use only:
-      <b>No.</b>, <b>Description</b>, <b>Inventory</b>, and <b>Barcode No.</b>
+      Upload your Indian aisle Excel/export. App uses: <b>No.</b>, <b>Description</b>, <b>Inventory</b>, <b>Barcode No.</b>
     </div>
 
     <label>Select Excel file</label>
@@ -189,7 +168,7 @@
     <button class="btn-grey" onclick="loadSample()">Test Sample</button>
 
     <div class="danger">
-      Best setup: make your Indian aisle Excel rows already arranged in the walking order. Then choose “Keep Excel order”.
+      Best setup: arrange your Indian aisle Excel rows in your real walking order, then choose “Keep Excel order”.
     </div>
   </div>
 
@@ -201,7 +180,14 @@
       <div class="stat">Total <b id="totalCount">0</b></div>
     </div>
 
-    <input id="searchBox" placeholder="Search item no, barcode, or description" oninput="renderCurrent()" />
+    <label>Search</label>
+    <input id="searchBox" placeholder="Search item no, barcode, or description" oninput="renderSuggestions(); renderCurrent();" />
+    <div id="suggestions" class="suggestions hidden"></div>
+
+    <button class="btn-purple" onclick="startVoiceSearch()">🎤 Voice Search</button>
+    <button class="btn-blue" onclick="toggleScanner()">📷 Camera Barcode Scanner</button>
+    <div id="reader" class="hidden"></div>
+
     <progress id="progressBar" value="0" max="100"></progress>
   </div>
 
@@ -218,14 +204,24 @@
     <button class="btn-red" onclick="undoLast()">Undo Last</button>
   </div>
 
+  <div class="card hidden" id="listCard">
+    <div class="tabs">
+      <button onclick="showList('all')">Full List</button>
+      <button onclick="showList('remaining')">Current</button>
+      <button onclick="showList('ordered')">Ordered</button>
+      <button onclick="showList('skipped')">Skipped</button>
+    </div>
+    <div id="listTitle" class="product-title"></div>
+    <div id="listBody"></div>
+  </div>
+
   <div class="card hidden" id="completeCard">
     <h2>Indian Aisle Complete</h2>
     <p id="completeText"></p>
-    <button class="btn-blue" onclick="showSkipped()">Show Skipped Items</button>
+    <button class="btn-blue" onclick="showList('skipped')">Show Skipped Items</button>
     <button class="btn-green" onclick="exportSkipped()">Export Skipped CSV</button>
     <button class="btn-grey" onclick="exportAll()">Export Full Result CSV</button>
     <button class="btn-red" onclick="resetProgress()">Reset Progress</button>
-    <div id="skippedList"></div>
   </div>
 
 </div>
@@ -234,14 +230,12 @@
 let items = [];
 let currentIndex = 0;
 let historyStack = [];
-const STORAGE_KEY = "indian_aisle_ordering_v2";
+let scanner = null;
+let scannerRunning = false;
+const STORAGE_KEY = "indian_aisle_ordering_v3";
 
 function normaliseHeader(h) {
-  return String(h || "")
-    .toLowerCase()
-    .replace(/\./g, "")
-    .replace(/\s+/g, "")
-    .trim();
+  return String(h || "").toLowerCase().replace(/\./g, "").replace(/\s+/g, "").trim();
 }
 
 function getValue(row, possibleNames) {
@@ -249,9 +243,7 @@ function getValue(row, possibleNames) {
   for (const name of possibleNames) {
     const wanted = normaliseHeader(name);
     for (const key of keys) {
-      if (normaliseHeader(key) === wanted) {
-        return row[key] ?? "";
-      }
+      if (normaliseHeader(key) === wanted) return row[key] ?? "";
     }
   }
   return "";
@@ -270,10 +262,7 @@ function rowToItem(row, index) {
 
 async function loadExcel() {
   const file = document.getElementById("fileInput").files[0];
-  if (!file) {
-    alert("Select your Excel file first.");
-    return;
-  }
+  if (!file) return alert("Select your Excel file first.");
 
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data, { type: "array" });
@@ -281,14 +270,8 @@ async function loadExcel() {
   const sheet = workbook.Sheets[sheetName];
   const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-  items = rows
-    .map(rowToItem)
-    .filter(x => x.itemNo || x.description);
-
-  if (!items.length) {
-    alert("No products found. Check if your headers include No., Description, Inventory, Barcode No.");
-    return;
-  }
+  items = rows.map(rowToItem).filter(x => x.itemNo || x.description);
+  if (!items.length) return alert("No products found. Check headers: No., Description, Inventory, Barcode No.");
 
   applySort();
   currentIndex = 0;
@@ -299,12 +282,8 @@ async function loadExcel() {
 
 function applySort() {
   const mode = document.getElementById("sortMode").value;
-  if (mode === "description") {
-    items.sort((a, b) => a.description.localeCompare(b.description));
-  }
-  if (mode === "inventoryLow") {
-    items.sort((a, b) => (Number(a.inventory) || 0) - (Number(b.inventory) || 0));
-  }
+  if (mode === "description") items.sort((a, b) => a.description.localeCompare(b.description));
+  if (mode === "inventoryLow") items.sort((a, b) => (Number(a.inventory) || 0) - (Number(b.inventory) || 0));
   items.forEach((x, i) => x.seq = i + 1);
 }
 
@@ -325,7 +304,9 @@ function loadSample() {
 function showApp() {
   document.getElementById("setupCard").classList.add("hidden");
   document.getElementById("dashboardCard").classList.remove("hidden");
+  document.getElementById("listCard").classList.remove("hidden");
   renderCurrent();
+  showList("remaining");
 }
 
 function visibleUnmarked() {
@@ -333,12 +314,16 @@ function visibleUnmarked() {
   return items.filter(x => {
     if (x.status) return false;
     if (!q) return true;
-    return (
-      x.itemNo.toLowerCase().includes(q) ||
-      x.description.toLowerCase().includes(q) ||
-      x.barcode.toLowerCase().includes(q)
-    );
+    return matchItem(x, q);
   });
+}
+
+function matchItem(x, q) {
+  return (
+    x.itemNo.toLowerCase().includes(q) ||
+    x.description.toLowerCase().includes(q) ||
+    x.barcode.toLowerCase().includes(q)
+  );
 }
 
 function updateStats() {
@@ -356,20 +341,17 @@ function updateStats() {
 
 function renderCurrent() {
   updateStats();
+  renderSuggestions();
 
   const remainingAll = items.filter(x => !x.status).length;
-  if (remainingAll === 0) {
-    complete();
-    return;
-  }
+  if (remainingAll === 0) return complete();
 
   const list = visibleUnmarked();
-
   document.getElementById("completeCard").classList.add("hidden");
   document.getElementById("productCard").classList.remove("hidden");
 
   if (!list.length) {
-    document.getElementById("productTitle").textContent = "No matching items";
+    document.getElementById("productTitle").textContent = "No matching unmarked items";
     document.getElementById("productMeta").innerHTML = "Clear search to continue.";
     document.getElementById("positionPill").textContent = "";
     return;
@@ -382,9 +364,43 @@ function renderCurrent() {
   document.getElementById("productMeta").innerHTML =
     `Item No: <b>${item.itemNo || "-"}</b><br>` +
     `Inventory: <b>${item.inventory || "-"}</b><br>` +
-    `Barcode: <b>${item.barcode || "-"}</b>`;
-
+    `Barcode: <b>${item.barcode || "-"}</b><br>` +
+    `Status: <b>${item.status || "CURRENT"}</b>`;
   document.getElementById("positionPill").textContent = `Line ${item.seq}`;
+}
+
+function renderSuggestions() {
+  const box = document.getElementById("searchBox");
+  const div = document.getElementById("suggestions");
+  const q = box.value.toLowerCase().trim();
+
+  if (!q) {
+    div.classList.add("hidden");
+    div.innerHTML = "";
+    return;
+  }
+
+  const matches = items.filter(x => matchItem(x, q)).slice(0, 6);
+  if (!matches.length) {
+    div.classList.add("hidden");
+    div.innerHTML = "";
+    return;
+  }
+
+  div.classList.remove("hidden");
+  div.innerHTML = matches.map(x => `
+    <div class="suggestion" onclick="selectSuggestion('${escapeJs(x.itemNo)}','${escapeJs(x.barcode)}')">
+      <b>${escapeHtml(x.description)}</b><br>
+      <span class="small">Item: ${escapeHtml(x.itemNo)} | Inv: ${escapeHtml(x.inventory)} | ${x.status || "remaining"}</span>
+    </div>
+  `).join("");
+}
+
+function selectSuggestion(itemNo, barcode) {
+  const found = items.find(x => x.itemNo === itemNo && x.barcode === barcode);
+  if (!found) return;
+  document.getElementById("searchBox").value = found.itemNo || found.barcode || found.description;
+  renderCurrent();
 }
 
 function markCurrent(status) {
@@ -394,6 +410,7 @@ function markCurrent(status) {
   item.status = status;
   save();
   renderCurrent();
+  showList("remaining");
 }
 
 function moveToEnd() {
@@ -403,19 +420,60 @@ function moveToEnd() {
   items.forEach((x, i) => x.seq = i + 1);
   save();
   renderCurrent();
+  showList("remaining");
 }
 
 function undoLast() {
   const last = historyStack.pop();
-  if (!last) {
-    alert("Nothing to undo.");
-    return;
-  }
-  if (items[last.index]) {
-    items[last.index].status = last.oldStatus;
-  }
+  if (!last) return alert("Nothing to undo.");
+  if (items[last.index]) items[last.index].status = last.oldStatus;
   save();
   renderCurrent();
+  showList("remaining");
+}
+
+function showList(type) {
+  if (!items.length) return;
+  const title = document.getElementById("listTitle");
+  const body = document.getElementById("listBody");
+  let rows = [];
+
+  if (type === "all") {
+    title.textContent = "Full List";
+    rows = items;
+  } else if (type === "remaining") {
+    title.textContent = "Current / Remaining List";
+    rows = items.filter(x => !x.status);
+  } else if (type === "ordered") {
+    title.textContent = "Ordered List";
+    rows = items.filter(x => x.status === "ordered");
+  } else if (type === "skipped") {
+    title.textContent = "Skipped List";
+    rows = items.filter(x => x.status === "skipped");
+  }
+
+  if (!rows.length) {
+    body.innerHTML = "<p class='small'>No items in this list.</p>";
+    return;
+  }
+
+  body.innerHTML = rows.map(x => `
+    <div class="list-item">
+      <b>${escapeHtml(x.description)}</b><br>
+      <span class="small">Line ${x.seq} | Item: ${escapeHtml(x.itemNo)} | Inventory: ${escapeHtml(x.inventory)} | Barcode: ${escapeHtml(x.barcode)} | Status: ${escapeHtml(x.status || "remaining")}</span>
+      ${!x.status ? `
+        <button class="btn-green" onclick="markSpecific('${escapeJs(x.itemNo)}','${escapeJs(x.barcode)}','ordered')">Mark Ordered</button>
+        <button class="btn-yellow" onclick="markSpecific('${escapeJs(x.itemNo)}','${escapeJs(x.barcode)}','skipped')">Mark Skipped</button>
+      ` : ""}
+    </div>
+  `).join("");
+}
+
+function markSpecific(itemNo, barcode, status) {
+  const idx = items.findIndex(x => x.itemNo === itemNo && x.barcode === barcode && !x.status);
+  if (idx < 0) return;
+  currentIndex = idx;
+  markCurrent(status);
 }
 
 function complete() {
@@ -425,26 +483,8 @@ function complete() {
 
   const ordered = items.filter(x => x.status === "ordered").length;
   const skipped = items.filter(x => x.status === "skipped").length;
-
   document.getElementById("completeText").textContent =
     `Ordered: ${ordered}. Skipped: ${skipped}. Total: ${items.length}.`;
-}
-
-function showSkipped() {
-  const skipped = items.filter(x => x.status === "skipped");
-  const div = document.getElementById("skippedList");
-
-  if (!skipped.length) {
-    div.innerHTML = "<p>No skipped items.</p>";
-    return;
-  }
-
-  div.innerHTML = "<h3>Skipped Items</h3>" + skipped.map(x =>
-    `<div class="list-item">
-      <b>${x.description}</b><br>
-      <span class="small">Item No: ${x.itemNo} | Inventory: ${x.inventory} | Barcode: ${x.barcode}</span>
-    </div>`
-  ).join("");
 }
 
 function makeCSV(rows) {
@@ -477,16 +517,78 @@ function resetProgress() {
   historyStack = [];
   save();
   renderCurrent();
+  showList("remaining");
+}
+
+function startVoiceSearch() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Voice search is not supported in this browser. Try Chrome on Android.");
+    return;
+  }
+  const rec = new SpeechRecognition();
+  rec.lang = "en-AU";
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  rec.onresult = e => {
+    const text = e.results[0][0].transcript;
+    document.getElementById("searchBox").value = text;
+    renderCurrent();
+  };
+  rec.onerror = () => alert("Voice search failed. Try again.");
+  rec.start();
+}
+
+async function toggleScanner() {
+  const reader = document.getElementById("reader");
+
+  if (scannerRunning && scanner) {
+    await scanner.stop();
+    scannerRunning = false;
+    reader.classList.add("hidden");
+    return;
+  }
+
+  reader.classList.remove("hidden");
+
+  if (!scanner) {
+    scanner = new Html5Qrcode("reader");
+  }
+
+  try {
+    await scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 140 } },
+      decodedText => {
+        document.getElementById("searchBox").value = decodedText;
+        renderCurrent();
+        if (navigator.vibrate) navigator.vibrate(120);
+      }
+    );
+    scannerRunning = true;
+  } catch (err) {
+    alert("Camera scanner failed. Allow camera permission and use Chrome/HTTPS.");
+    reader.classList.add("hidden");
+  }
 }
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, historyStack }));
 }
 
+function escapeHtml(text) {
+  return String(text ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+  }[m]));
+}
+
+function escapeJs(text) {
+  return String(text ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
 (function init() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (!saved) return;
-
   try {
     const data = JSON.parse(saved);
     if (data.items && data.items.length) {
