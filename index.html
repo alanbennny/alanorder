@@ -1,116 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Indian Aisle Ordering</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Indian Aisle Order Assistant</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin:0; font-family:Arial,sans-serif; background:#111827; color:#f9fafb; }
-    header { background:#030712; padding:16px; position:sticky; top:0; z-index:10; border-bottom:1px solid #374151; }
-    h1 { margin:0; font-size:22px; }
-    h2 { margin-top:0; }
-    .small { color:#d1d5db; font-size:13px; margin-top:4px; }
-    .wrap { padding:14px; max-width:760px; margin:auto; }
-    .card { background:#1f2937; padding:14px; border-radius:14px; margin-bottom:14px; box-shadow:0 6px 18px rgba(0,0,0,.25); }
-    label { display:block; margin:12px 0 6px; color:#d1d5db; font-size:14px; }
-    input, select { width:100%; padding:13px; border-radius:10px; border:1px solid #4b5563; background:#111827; color:#f9fafb; font-size:16px; }
-    button { width:100%; padding:15px; margin-top:10px; border:0; border-radius:12px; color:white; font-size:17px; font-weight:bold; cursor:pointer; }
-    .btn-blue{background:#2563eb}.btn-green{background:#16a34a}.btn-yellow{background:#ca8a04}.btn-red{background:#dc2626}.btn-grey{background:#4b5563}.btn-purple{background:#7c3aed}
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-    .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-    .grid3 button { font-size:13px; padding:11px 5px; margin-top:0; }
-    .stat { background:#374151; padding:12px; border-radius:12px; text-align:center; color:#d1d5db; }
-    .stat b { display:block; font-size:24px; color:#f9fafb; margin-top:4px; }
-    .product-title { font-size:25px; font-weight:800; line-height:1.25; margin-bottom:12px; }
-    .meta { background:#111827; border-radius:12px; padding:12px; line-height:1.8; color:#e5e7eb; font-size:16px; }
-    .pill { display:inline-block; padding:6px 10px; background:#374151; border-radius:999px; margin:8px 4px 0 0; color:#d1d5db; font-size:14px; }
-    progress { width:100%; height:18px; margin-top:10px; }
-    .hidden { display:none; }
-    .list-item { padding:11px; border-bottom:1px solid #374151; font-size:15px; }
-    .list-item button { font-size:14px; padding:10px; margin-top:8px; }
-    .danger { color:#fecaca; background:#7f1d1d; padding:10px; border-radius:10px; margin-top:10px; font-size:14px; }
-    .notice { color:#bbf7d0; background:#14532d; padding:10px; border-radius:10px; margin-top:10px; font-size:14px; }
-    .suggestions { background:#111827; border:1px solid #374151; border-radius:12px; margin-top:8px; overflow:hidden; }
-    .suggestion { padding:11px; border-bottom:1px solid #374151; cursor:pointer; }
-    .suggestion:last-child { border-bottom:0; }
-    .bottomNav { position:sticky; bottom:0; background:#030712; padding:10px; border-top:1px solid #374151; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; z-index:20; }
-    .bottomNav button { margin:0; padding:11px 4px; font-size:12px; border-radius:10px; background:#374151; }
-    #reader { width:100%; background:#111827; border-radius:12px; overflow:hidden; margin-top:10px; }
+    *{box-sizing:border-box}
+    :root{
+      --bg:#0b1220;--card:#151f32;--card2:#1d2a44;--text:#f8fafc;--muted:#b6c2d4;
+      --blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#8b5cf6;
+    }
+    body{margin:0;font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#08111f,#111827);color:var(--text)}
+    header{position:sticky;top:0;z-index:10;background:rgba(8,17,31,.96);backdrop-filter:blur(8px);padding:16px;border-bottom:1px solid #26344f}
+    h1{margin:0;font-size:21px;letter-spacing:.2px}
+    h2{margin:0 0 10px;font-size:20px}
+    .small{color:var(--muted);font-size:13px;line-height:1.45}
+    .wrap{max-width:780px;margin:auto;padding:14px}
+    .card{background:rgba(21,31,50,.96);border:1px solid #26344f;border-radius:18px;padding:15px;margin-bottom:14px;box-shadow:0 12px 30px rgba(0,0,0,.22);animation:fadeUp .22s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    label{display:block;margin:12px 0 6px;color:var(--muted);font-size:14px}
+    input,select,textarea{width:100%;padding:13px;border-radius:12px;border:1px solid #33435f;background:#0f172a;color:var(--text);font-size:16px}
+    textarea{min-height:86px;resize:vertical}
+    button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:14px;color:white;font-size:16px;font-weight:800;cursor:pointer;transition:.12s transform,.12s opacity}
+    button:active{transform:scale(.98)}
+    .btn-blue{background:var(--blue)}.btn-green{background:var(--green)}.btn-yellow{background:#ca8a04}.btn-red{background:var(--red)}.btn-grey{background:#475569}.btn-purple{background:var(--purple)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .grid3 button{font-size:13px;padding:11px 4px;margin-top:0}
+    .stat{background:linear-gradient(180deg,#22314d,#1b2942);padding:13px;border-radius:16px;text-align:center;color:var(--muted)}
+    .stat b{display:block;font-size:25px;color:white;margin-top:3px}
+    .product-title{font-size:25px;font-weight:900;line-height:1.22;margin-bottom:12px}
+    .meta{background:#0f172a;border-radius:16px;padding:13px;line-height:1.8;color:#e5e7eb;font-size:16px}
+    .pill{display:inline-block;padding:7px 11px;background:#25344f;border-radius:999px;margin:9px 5px 0 0;color:#dbeafe;font-size:13px}
+    .hidden{display:none!important}
+    progress{width:100%;height:17px;margin-top:12px}
+    .list-item{padding:12px;border-bottom:1px solid #2e3d58;font-size:15px}
+    .list-item button{font-size:14px;padding:10px;margin-top:8px}
+    .notice{background:#12351f;color:#bbf7d0;border:1px solid #22683a;border-radius:14px;padding:11px;margin-top:10px;font-size:14px}
+    .warning{background:#452414;color:#fed7aa;border:1px solid #9a5a16;border-radius:14px;padding:11px;margin-top:10px;font-size:14px}
+    .suggestions{background:#0f172a;border:1px solid #33435f;border-radius:14px;margin-top:8px;overflow:hidden}
+    .suggestion{padding:11px;border-bottom:1px solid #33435f;cursor:pointer}.suggestion:last-child{border-bottom:0}
+    .bottomNav{position:sticky;bottom:0;background:rgba(8,17,31,.97);backdrop-filter:blur(8px);padding:10px;border-top:1px solid #26344f;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;z-index:20}
+    .bottomNav button{margin:0;padding:10px 2px;font-size:11px;border-radius:12px;background:#334155}
+    #reader{width:100%;background:#0f172a;border-radius:14px;overflow:hidden;margin-top:10px}
+    .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99}
+    .modal{background:#111827;border:1px solid #334155;border-radius:18px;padding:16px;width:100%;max-width:430px;box-shadow:0 25px 60px rgba(0,0,0,.5);animation:pop .16s ease both}
+    @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+    .doneFlash{animation:flash .5s ease}
+    @keyframes flash{0%{box-shadow:0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 0 6px rgba(34,197,94,.25)}100%{box-shadow:0 0 0 rgba(34,197,94,0)}}
   </style>
 </head>
 <body>
 <header>
-  <h1>Indian Aisle Ordering</h1>
-  <div class="small">Home • Stop/Resume • Current stopped bay • Review worksheet • Full list • Ordered list</div>
+  <h1>Indian Aisle Order Assistant</h1>
+  <div class="small">Daily saved orders • Notes • Bay popup • New product • Scanner • Clean dashboard</div>
 </header>
 
 <div class="wrap">
   <div class="card" id="homeCard">
-    <h2>Home Screen</h2>
-    <div class="small">Load your Indian aisle Excel and start ordering. Barcodes like 8.90106E+12 are cleaned automatically.</div>
+    <h2>Dashboard</h2>
+    <div class="grid">
+      <div class="stat">Remaining <b id="hRemaining">0</b></div>
+      <div class="stat">Ordered <b id="hOrdered">0</b></div>
+      <div class="stat">Skipped <b id="hSkipped">0</b></div>
+      <div class="stat">Missing Bay <b id="hMissingBay">0</b></div>
+    </div>
+    <progress id="homeProgress" value="0" max="100"></progress>
+
+    <label>Today’s order date</label>
+    <input type="date" id="orderDate"/>
+
     <label>Select Excel file</label>
-    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv"/>
+
     <label>Sort order</label>
     <select id="sortMode">
       <option value="original">Keep Excel walking order</option>
+      <option value="bay">Bay then walking order</option>
       <option value="description">Description A-Z</option>
       <option value="inventoryLow">Lowest inventory first</option>
     </select>
-    <button class="btn-blue" onclick="loadExcel()">Load Indian Aisle</button>
-    <button class="btn-green" onclick="goOrdering()">Continue / Start Ordering</button>
+
+    <button class="btn-blue" onclick="loadExcel()">Load Excel</button>
+    <button class="btn-green" onclick="goOrdering()">Start / Resume</button>
     <button class="btn-purple" onclick="goReview()">Review Worksheet</button>
-    <button class="btn-grey" onclick="loadSample()">Test Sample</button>
-    <div class="notice" id="stoppedBayHome">Current stopped bay/line: Not started</div>
+    <button class="btn-yellow" onclick="openNewProductModal()">Add New Product</button>
+
+    <div class="notice" id="stoppedBayHome">Stopped position: Not started</div>
+    <div class="warning" id="bayWarning">Assign bays as you go. When all bays are assigned, the app will show a completion animation.</div>
   </div>
 
-  <div class="card hidden" id="dashboardCard">
-    <div class="grid">
-      <div class="stat">Remaining <b id="remainingCount">0</b></div>
-      <div class="stat">Ordered <b id="orderedCount">0</b></div>
-      <div class="stat">Skipped <b id="skippedCount">0</b></div>
-      <div class="stat">Total <b id="totalCount">0</b></div>
-    </div>
+  <div class="card hidden" id="notesCard">
+    <h2>Today’s Notes</h2>
+    <textarea id="notesText" placeholder="Example: Don't order extra Maggi today..." oninput="save()"></textarea>
+  </div>
+
+  <div class="card hidden" id="orderCard">
     <div class="grid3">
-      <button onclick="stopHere()" class="btn-red">STOP HERE</button>
-      <button onclick="goHome()" class="btn-grey">HOME</button>
-      <button onclick="goReview()" class="btn-purple">REVIEW</button>
+      <button class="btn-red" onclick="stopHere()">Stop</button>
+      <button class="btn-grey" onclick="goHome()">Home</button>
+      <button class="btn-purple" onclick="goReview()">Review</button>
     </div>
-    <div class="notice" id="currentStoppedBay">Current stopped bay/line: Not stopped</div>
 
     <label>Search</label>
-    <input id="searchBox" placeholder="Search item no, barcode, or description" oninput="renderSuggestions(); renderCurrent();" />
+    <input id="searchBox" placeholder="Search item no, barcode, description, bay" oninput="renderSuggestions();renderCurrent();"/>
     <div id="suggestions" class="suggestions hidden"></div>
-    <button class="btn-purple" onclick="startVoiceSearch()">🎤 Voice Search</button>
-    <button class="btn-blue" onclick="toggleScanner()">📷 Camera Barcode Scanner</button>
-    <div id="reader" class="hidden"></div>
-    <progress id="progressBar" value="0" max="100"></progress>
-  </div>
 
-  <div class="card hidden" id="productCard">
+    <div class="grid">
+      <button class="btn-purple" onclick="startVoiceSearch()">🎤 Voice</button>
+      <button class="btn-blue" onclick="toggleScanner()">📷 Barcode</button>
+    </div>
+    <div id="reader" class="hidden"></div>
+
     <div class="product-title" id="productTitle"></div>
     <div class="meta" id="productMeta"></div>
     <span class="pill" id="positionPill"></span>
-    <span class="pill">Default Qty: 1</span>
+    <span class="pill">Qty: 1</span>
+
     <button class="btn-green" onclick="markCurrent('ordered')">ORDERED</button>
     <button class="btn-yellow" onclick="markCurrent('skipped')">SKIP</button>
-    <button class="btn-grey" onclick="moveToEnd()">Not now / check later</button>
+    <button class="btn-grey" onclick="moveToEnd()">Check Later</button>
     <button class="btn-red" onclick="undoLast()">Undo Last</button>
   </div>
 
   <div class="card hidden" id="reviewCard">
-    <h2 id="listTitle">Review Worksheet</h2>
+    <h2 id="listTitle">Review</h2>
     <div class="grid3">
       <button onclick="showList('remaining')">Current</button>
       <button onclick="showList('ordered')">Ordered</button>
       <button onclick="showList('skipped')">Skipped</button>
     </div>
-    <button class="btn-grey" onclick="showList('all')">View Full List</button>
+    <div class="grid">
+      <button class="btn-grey" onclick="showList('all')">Full List</button>
+      <button class="btn-yellow" onclick="showList('missingBay')">No Bay</button>
+    </div>
     <button class="btn-blue" onclick="goOrdering()">Back to Ordering</button>
-    <button class="btn-green" onclick="exportAll()">Export Full Result CSV</button>
-    <button class="btn-yellow" onclick="exportSkipped()">Export Skipped CSV</button>
+    <button class="btn-green" onclick="exportDailyWorkbook()">Export Daily Excel</button>
+    <button class="btn-purple" onclick="exportUpdatedMaster()">Export Updated Master</button>
     <div id="listBody"></div>
   </div>
 
@@ -118,7 +145,7 @@
     <h2>Indian Aisle Complete</h2>
     <p id="completeText"></p>
     <button class="btn-purple" onclick="goReview()">Review Worksheet</button>
-    <button class="btn-green" onclick="exportAll()">Export Full Result CSV</button>
+    <button class="btn-green" onclick="exportDailyWorkbook()">Export Daily Excel</button>
     <button class="btn-red" onclick="resetProgress()">Reset Progress</button>
   </div>
 </div>
@@ -128,148 +155,145 @@
   <button onclick="goOrdering()">Order</button>
   <button onclick="stopHere()">Stop</button>
   <button onclick="goReview()">Review</button>
+  <button onclick="openNewProductModal()">+Item</button>
+</div>
+
+<div class="modalBack hidden" id="bayModal">
+  <div class="modal">
+    <h2>Bay Missing</h2>
+    <div class="small" id="bayItemText"></div>
+    <label>Enter bay number/location</label>
+    <input id="bayInput" placeholder="Example: Bay 3"/>
+    <button class="btn-green" onclick="saveBay()">Save Bay</button>
+    <button class="btn-grey" onclick="skipBayForNow()">Skip for now</button>
+  </div>
+</div>
+
+<div class="modalBack hidden" id="newProductModal">
+  <div class="modal">
+    <h2>Add New Product</h2>
+    <input id="npNo" placeholder="Item No"/>
+    <input id="npDesc" placeholder="Description"/>
+    <input id="npInventory" placeholder="Inventory"/>
+    <input id="npBarcode" placeholder="Barcode No"/>
+    <input id="npBay" placeholder="Bay"/>
+    <button class="btn-green" onclick="saveNewProduct()">Save Product</button>
+    <button class="btn-grey" onclick="closeNewProductModal()">Cancel</button>
+  </div>
 </div>
 
 <script>
-let items = [];
-let currentIndex = 0;
-let historyStack = [];
-let scanner = null;
-let scannerRunning = false;
-let stoppedInfo = null;
-const STORAGE_KEY = "indian_aisle_ordering_v5";
+let items=[], currentIndex=0, historyStack=[], scanner=null, scannerRunning=false, stoppedInfo=null, bayModalIndex=null;
+const STORAGE_KEY="indian_aisle_daily_v6";
 
-function cleanBarcode(value) {
-  if (value === null || value === undefined) return "";
-  if (typeof value === "number") return value.toLocaleString("fullwide", { useGrouping:false, maximumFractionDigits:0 }).trim();
-  let text = String(value).trim();
-  if (/^[0-9]+(\.[0-9]+)?e\+?[0-9]+$/i.test(text)) {
-    const num = Number(text);
-    if (!Number.isNaN(num)) return num.toLocaleString("fullwide", { useGrouping:false, maximumFractionDigits:0 }).trim();
+document.getElementById("orderDate").value = new Date().toISOString().slice(0,10);
+
+function cleanBarcode(value){
+  if(value===null||value===undefined)return "";
+  if(typeof value==="number")return value.toLocaleString("fullwide",{useGrouping:false,maximumFractionDigits:0}).trim();
+  let text=String(value).trim();
+  if(/^[0-9]+(\.[0-9]+)?e\+?[0-9]+$/i.test(text)){
+    const n=Number(text);
+    if(!Number.isNaN(n))return n.toLocaleString("fullwide",{useGrouping:false,maximumFractionDigits:0}).trim();
   }
-  return text.replace(/\.0$/, "").replace(/\s/g, "");
+  return text.replace(/\.0$/,"").replace(/\s/g,"");
 }
-function normaliseHeader(h){ return String(h||"").toLowerCase().replace(/\./g,"").replace(/\s+/g,"").trim(); }
-function getValue(row,names){ const keys=Object.keys(row); for(const name of names){const wanted=normaliseHeader(name); for(const key of keys){if(normaliseHeader(key)===wanted) return row[key]??"";}} return ""; }
+function normaliseHeader(h){return String(h||"").toLowerCase().replace(/\./g,"").replace(/\s+/g,"").trim();}
+function getValue(row,names){const keys=Object.keys(row);for(const name of names){const wanted=normaliseHeader(name);for(const key of keys){if(normaliseHeader(key)===wanted)return row[key]??"";}}return "";}
 function rowToItem(row,index){
-  return {
-    seq:index+1,
-    itemNo:String(getValue(row,["No.","No","Item No","ItemNo"])).trim(),
-    description:String(getValue(row,["Description","Desc"])).trim(),
-    inventory:String(getValue(row,["Inventory","Stock"])).trim(),
-    barcode:cleanBarcode(getValue(row,["Barcode No.","Barcode No","BarcodeNo","Barcode"])),
-    bay:String(getValue(row,["Bay","Location","Shelf","Seq","Sequence"])).trim(),
-    status:""
-  };
+  return {seq:index+1,itemNo:String(getValue(row,["No.","No","Item No","ItemNo"])).trim(),description:String(getValue(row,["Description","Desc"])).trim(),inventory:String(getValue(row,["Inventory","Stock"])).trim(),barcode:cleanBarcode(getValue(row,["Barcode No.","Barcode No","BarcodeNo","Barcode"])),bay:String(getValue(row,["Bay","Location","Shelf"])).trim(),status:"",skipReason:""};
 }
 async function loadExcel(){
   const file=document.getElementById("fileInput").files[0];
-  if(!file) return alert("Select your Excel file first.");
+  if(!file)return alert("Select your Excel file first.");
   const data=await file.arrayBuffer();
-  const workbook=XLSX.read(data,{type:"array"});
-  const sheet=workbook.Sheets[workbook.SheetNames[0]];
-  const rows=XLSX.utils.sheet_to_json(sheet,{defval:""});
+  const wb=XLSX.read(data,{type:"array"});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
   items=rows.map(rowToItem).filter(x=>x.itemNo||x.description);
-  if(!items.length) return alert("No products found. Check headers: No., Description, Inventory, Barcode No.");
-  applySort(); currentIndex=0; historyStack=[]; stoppedInfo=null; save(); goOrdering();
+  if(!items.length)return alert("No products found. Check headers.");
+  applySort(); currentIndex=0; historyStack=[]; stoppedInfo=null; save(); goHome(); updateStats(); checkAllBaysAssigned();
 }
 function applySort(){
   const mode=document.getElementById("sortMode").value;
-  if(mode==="description") items.sort((a,b)=>a.description.localeCompare(b.description));
-  if(mode==="inventoryLow") items.sort((a,b)=>(Number(a.inventory)||0)-(Number(b.inventory)||0));
+  if(mode==="bay")items.sort((a,b)=>(a.bay||"").localeCompare(b.bay||"",undefined,{numeric:true})||a.seq-b.seq);
+  if(mode==="description")items.sort((a,b)=>a.description.localeCompare(b.description));
+  if(mode==="inventoryLow")items.sort((a,b)=>(Number(a.inventory)||0)-(Number(b.inventory)||0));
   items.forEach((x,i)=>x.seq=i+1);
 }
-function loadSample(){
-  items=[
-    {seq:1,itemNo:"10001",description:"Aashirvaad Atta 10kg",inventory:"4",barcode:"8901060000001",bay:"Bay 1",status:""},
-    {seq:2,itemNo:"10002",description:"MDH Garam Masala",inventory:"2",barcode:"8901060000002",bay:"Bay 1",status:""},
-    {seq:3,itemNo:"10003",description:"Daawat Basmati Rice 5kg",inventory:"8",barcode:"8901060000003",bay:"Bay 2",status:""},
-    {seq:4,itemNo:"10004",description:"Maggi Masala Noodles",inventory:"6",barcode:"8901060000004",bay:"Bay 2",status:""},
-    {seq:5,itemNo:"10005",description:"Priya Mango Pickle",inventory:"1",barcode:"8901060000005",bay:"Bay 3",status:""}
-  ];
-  currentIndex=0; historyStack=[]; stoppedInfo=null; save(); goOrdering();
-}
-function hideAll(){
-  ["homeCard","dashboardCard","productCard","reviewCard","completeCard"].forEach(id=>document.getElementById(id).classList.add("hidden"));
-  document.getElementById("bottomNav").classList.toggle("hidden", !items.length);
-}
-function goHome(){ hideAll(); document.getElementById("homeCard").classList.remove("hidden"); updateStoppedLabels(); }
-function goOrdering(){ if(!items.length) return goHome(); hideAll(); document.getElementById("dashboardCard").classList.remove("hidden"); document.getElementById("productCard").classList.remove("hidden"); renderCurrent(); }
-function goReview(){ if(!items.length) return goHome(); hideAll(); document.getElementById("reviewCard").classList.remove("hidden"); showList("remaining"); updateStats(); }
-function stopHere(){
-  if(!items.length) return;
-  const item=items[currentIndex] || items.find(x=>!x.status);
-  if(item) stoppedInfo={seq:item.seq,itemNo:item.itemNo,description:item.description,bay:item.bay||"No bay"};
-  save(); updateStoppedLabels(); alert("Stopped position saved.");
-}
-function updateStoppedLabels(){
-  const text = stoppedInfo ? `Current stopped bay/line: ${stoppedInfo.bay} | Line ${stoppedInfo.seq} | ${stoppedInfo.description}` : "Current stopped bay/line: Not stopped";
-  const a=document.getElementById("currentStoppedBay"); if(a) a.textContent=text;
-  const b=document.getElementById("stoppedBayHome"); if(b) b.textContent=text;
-}
-function visibleUnmarked(){
-  const q=document.getElementById("searchBox")?.value.toLowerCase().trim() || "";
-  return items.filter(x=>!x.status && (!q || matchItem(x,q)));
-}
-function matchItem(x,q){ return x.itemNo.toLowerCase().includes(q)||x.description.toLowerCase().includes(q)||x.barcode.toLowerCase().includes(q)||(x.bay||"").toLowerCase().includes(q); }
+function hideAll(){["homeCard","notesCard","orderCard","reviewCard","completeCard"].forEach(id=>document.getElementById(id).classList.add("hidden"));document.getElementById("bottomNav").classList.toggle("hidden",!items.length);}
+function goHome(){hideAll();document.getElementById("homeCard").classList.remove("hidden");document.getElementById("notesCard").classList.remove("hidden");updateStats();}
+function goOrdering(){if(!items.length)return goHome();hideAll();document.getElementById("orderCard").classList.remove("hidden");renderCurrent();}
+function goReview(){if(!items.length)return goHome();hideAll();document.getElementById("reviewCard").classList.remove("hidden");showList("remaining");updateStats();}
+function visibleUnmarked(){const q=(document.getElementById("searchBox")?.value||"").toLowerCase().trim();return items.filter(x=>!x.status&&(!q||matchItem(x,q)));}
+function matchItem(x,q){return x.itemNo.toLowerCase().includes(q)||x.description.toLowerCase().includes(q)||x.barcode.toLowerCase().includes(q)||(x.bay||"").toLowerCase().includes(q);}
 function updateStats(){
-  const total=items.length, ordered=items.filter(x=>x.status==="ordered").length, skipped=items.filter(x=>x.status==="skipped").length, remaining=items.filter(x=>!x.status).length;
-  document.getElementById("totalCount").textContent=total; document.getElementById("orderedCount").textContent=ordered; document.getElementById("skippedCount").textContent=skipped; document.getElementById("remainingCount").textContent=remaining; document.getElementById("progressBar").value=total?((ordered+skipped)/total)*100:0;
-  updateStoppedLabels();
+  const total=items.length, ordered=items.filter(x=>x.status==="ordered").length, skipped=items.filter(x=>x.status==="skipped").length, remaining=items.filter(x=>!x.status).length, missing=items.filter(x=>!x.bay).length;
+  ["hRemaining","hOrdered","hSkipped","hMissingBay"].forEach((id,i)=>{document.getElementById(id).textContent=[remaining,ordered,skipped,missing][i]});
+  document.getElementById("homeProgress").value=total?((ordered+skipped)/total)*100:0;
+  const stopText=stoppedInfo?`Stopped position: ${stoppedInfo.bay||"No bay"} | Line ${stoppedInfo.seq} | ${stoppedInfo.description}`:"Stopped position: Not started";
+  document.getElementById("stoppedBayHome").textContent=stopText;
 }
 function renderCurrent(){
-  updateStats(); renderSuggestions();
-  const remainingAll=items.filter(x=>!x.status).length;
-  if(remainingAll===0) return complete();
+  updateStats();renderSuggestions();
+  if(items.filter(x=>!x.status).length===0)return complete();
   const list=visibleUnmarked();
-  if(!list.length){ document.getElementById("productTitle").textContent="No matching unmarked items"; document.getElementById("productMeta").innerHTML="Clear search to continue."; return; }
-  const item=list[0]; currentIndex=items.indexOf(item);
-  document.getElementById("productTitle").textContent=item.description || "(No description)";
-  document.getElementById("productMeta").innerHTML=`Item No: <b>${item.itemNo||"-"}</b><br>Inventory: <b>${item.inventory||"-"}</b><br>Barcode: <b>${item.barcode||"-"}</b><br>Bay/Location: <b>${item.bay||"-"}</b><br>Status: <b>CURRENT</b>`;
+  if(!list.length){document.getElementById("productTitle").textContent="No matching items";document.getElementById("productMeta").innerHTML="Clear search.";return;}
+  const item=list[0];currentIndex=items.indexOf(item);
+  if(!item.bay && !item.bayAsked){openBayModal(currentIndex);item.bayAsked=true;save();}
+  document.getElementById("productTitle").textContent=item.description||"(No description)";
+  document.getElementById("productMeta").innerHTML=`Item No: <b>${item.itemNo||"-"}</b><br>Inventory: <b>${item.inventory||"-"}</b><br>Barcode: <b>${item.barcode||"-"}</b><br>Bay: <b>${item.bay||"NOT ASSIGNED"}</b>`;
   document.getElementById("positionPill").textContent=`Line ${item.seq}`;
 }
 function renderSuggestions(){
-  const box=document.getElementById("searchBox"), div=document.getElementById("suggestions");
-  if(!box||!div) return;
-  const q=box.value.toLowerCase().trim();
-  if(!q){ div.classList.add("hidden"); div.innerHTML=""; return; }
-  const matches=items.filter(x=>matchItem(x,q)).slice(0,6);
-  if(!matches.length){ div.classList.add("hidden"); div.innerHTML=""; return; }
-  div.classList.remove("hidden");
-  div.innerHTML=matches.map(x=>`<div class="suggestion" onclick="selectSuggestion('${escJs(x.itemNo)}','${escJs(x.barcode)}')"><b>${esc(x.description)}</b><br><span class="small">Item: ${esc(x.itemNo)} | Inv: ${esc(x.inventory)} | ${esc(x.status||"remaining")}</span></div>`).join("");
+  const box=document.getElementById("searchBox"), div=document.getElementById("suggestions"); if(!box||!div)return;
+  const q=box.value.toLowerCase().trim(); if(!q){div.classList.add("hidden");div.innerHTML="";return;}
+  const matches=items.filter(x=>matchItem(x,q)).slice(0,6); if(!matches.length){div.classList.add("hidden");div.innerHTML="";return;}
+  div.classList.remove("hidden"); div.innerHTML=matches.map(x=>`<div class="suggestion" onclick="selectSuggestion('${escJs(x.itemNo)}','${escJs(x.barcode)}')"><b>${esc(x.description)}</b><br><span class="small">Item ${esc(x.itemNo)} | Bay ${esc(x.bay||"-")} | ${esc(x.status||"remaining")}</span></div>`).join("");
 }
-function selectSuggestion(itemNo,barcode){ const found=items.find(x=>x.itemNo===itemNo&&x.barcode===barcode); if(!found)return; document.getElementById("searchBox").value=found.itemNo||found.barcode||found.description; renderCurrent(); }
-function markCurrent(status){ const item=items[currentIndex]; if(!item||item.status)return; historyStack.push({index:currentIndex,oldStatus:item.status}); item.status=status; save(); renderCurrent(); }
-function moveToEnd(){ const item=items[currentIndex]; if(!item||item.status)return; items.push(items.splice(currentIndex,1)[0]); items.forEach((x,i)=>x.seq=i+1); save(); renderCurrent(); }
-function undoLast(){ const last=historyStack.pop(); if(!last)return alert("Nothing to undo."); if(items[last.index]) items[last.index].status=last.oldStatus; save(); renderCurrent(); }
+function selectSuggestion(no,bar){const f=items.find(x=>x.itemNo===no&&x.barcode===bar);if(!f)return;document.getElementById("searchBox").value=f.itemNo||f.barcode||f.description;renderCurrent();}
+function markCurrent(status){const item=items[currentIndex];if(!item||item.status)return;historyStack.push({index:currentIndex,oldStatus:item.status});item.status=status;item.orderDate=document.getElementById("orderDate").value;save();renderCurrent();}
+function moveToEnd(){const item=items[currentIndex];if(!item||item.status)return;items.push(items.splice(currentIndex,1)[0]);items.forEach((x,i)=>x.seq=i+1);save();renderCurrent();}
+function undoLast(){const last=historyStack.pop();if(!last)return alert("Nothing to undo.");if(items[last.index])items[last.index].status=last.oldStatus;save();renderCurrent();}
+function stopHere(){if(!items.length)return;const item=items[currentIndex]||items.find(x=>!x.status);if(item)stoppedInfo={seq:item.seq,itemNo:item.itemNo,description:item.description,bay:item.bay||"No bay"};save();updateStats();alert("Stop point saved.");}
+function openBayModal(idx){bayModalIndex=idx;const item=items[idx];document.getElementById("bayItemText").innerHTML=`<b>${esc(item.description)}</b><br>Item: ${esc(item.itemNo)}`;document.getElementById("bayInput").value="";document.getElementById("bayModal").classList.remove("hidden");setTimeout(()=>document.getElementById("bayInput").focus(),150);}
+function saveBay(){const bay=document.getElementById("bayInput").value.trim();if(!bay)return alert("Enter bay first.");items[bayModalIndex].bay=bay;document.getElementById("bayModal").classList.add("hidden");save();renderCurrent();checkAllBaysAssigned();}
+function skipBayForNow(){document.getElementById("bayModal").classList.add("hidden");renderCurrent();}
+function checkAllBaysAssigned(){if(items.length&&items.every(x=>x.bay)){document.getElementById("homeCard").classList.add("doneFlash");document.getElementById("bayWarning").textContent="All bays assigned. Indian aisle master list is ready.";setTimeout(()=>document.getElementById("homeCard").classList.remove("doneFlash"),700);}}
+function openNewProductModal(){document.getElementById("newProductModal").classList.remove("hidden");}
+function closeNewProductModal(){document.getElementById("newProductModal").classList.add("hidden");}
+function saveNewProduct(){
+  const item={seq:items.length+1,itemNo:npNo.value.trim(),description:npDesc.value.trim(),inventory:npInventory.value.trim(),barcode:cleanBarcode(npBarcode.value),bay:npBay.value.trim(),status:"",newProduct:true};
+  if(!item.itemNo&&!item.description)return alert("Add item no or description.");
+  items.push(item);["npNo","npDesc","npInventory","npBarcode","npBay"].forEach(id=>document.getElementById(id).value="");closeNewProductModal();save();updateStats();alert("New product added.");
+}
 function showList(type){
-  const title=document.getElementById("listTitle"), body=document.getElementById("listBody"); let rows=[];
-  if(type==="all"){title.textContent="Full Worksheet"; rows=items;}
-  if(type==="remaining"){title.textContent="Current / Not Ordered Yet"; rows=items.filter(x=>!x.status);}
-  if(type==="ordered"){title.textContent="Ordered List"; rows=items.filter(x=>x.status==="ordered");}
-  if(type==="skipped"){title.textContent="Skipped List"; rows=items.filter(x=>x.status==="skipped");}
-  if(!rows.length){body.innerHTML="<p class='small'>No items in this list.</p>"; return;}
-  body.innerHTML=rows.map(x=>`<div class="list-item"><b>${esc(x.description)}</b><br><span class="small">Line ${x.seq} | Bay: ${esc(x.bay||"-")} | Item: ${esc(x.itemNo)} | Inv: ${esc(x.inventory)} | Barcode: ${esc(x.barcode)} | Status: ${esc(x.status||"remaining")}</span>${!x.status?`<button class="btn-green" onclick="markSpecific('${escJs(x.itemNo)}','${escJs(x.barcode)}','ordered')">Mark Ordered</button><button class="btn-yellow" onclick="markSpecific('${escJs(x.itemNo)}','${escJs(x.barcode)}','skipped')">Mark Skipped</button>`:""}</div>`).join("");
+  const title=document.getElementById("listTitle"), body=document.getElementById("listBody");let rows=[];
+  if(type==="all"){title.textContent="Full Worksheet";rows=items}
+  if(type==="remaining"){title.textContent="Current / Remaining";rows=items.filter(x=>!x.status)}
+  if(type==="ordered"){title.textContent="Ordered Today";rows=items.filter(x=>x.status==="ordered")}
+  if(type==="skipped"){title.textContent="Skipped Today";rows=items.filter(x=>x.status==="skipped")}
+  if(type==="missingBay"){title.textContent="Products Without Bay";rows=items.filter(x=>!x.bay)}
+  body.innerHTML=rows.length?rows.map(x=>`<div class="list-item"><b>${esc(x.description)}</b><br><span class="small">Line ${x.seq} | Bay ${esc(x.bay||"-")} | Item ${esc(x.itemNo)} | Inv ${esc(x.inventory)} | Barcode ${esc(x.barcode)} | ${esc(x.status||"remaining")}</span>${!x.bay?`<button class="btn-purple" onclick="openBayModal(${items.indexOf(x)})">Add Bay</button>`:""}${!x.status?`<button class="btn-green" onclick="markSpecific(${items.indexOf(x)},'ordered')">Mark Ordered</button><button class="btn-yellow" onclick="markSpecific(${items.indexOf(x)},'skipped')">Mark Skipped</button>`:""}</div>`).join(""):"<p class='small'>No items here.</p>";
 }
-function markSpecific(itemNo,barcode,status){ const idx=items.findIndex(x=>x.itemNo===itemNo&&x.barcode===barcode&&!x.status); if(idx<0)return; currentIndex=idx; markCurrent(status); showList("remaining"); }
-function complete(){ hideAll(); document.getElementById("completeCard").classList.remove("hidden"); const ordered=items.filter(x=>x.status==="ordered").length, skipped=items.filter(x=>x.status==="skipped").length; document.getElementById("completeText").textContent=`Ordered: ${ordered}. Skipped: ${skipped}. Total: ${items.length}.`; }
-function makeCSV(rows){ const header=["Line","Bay","No.","Description","Inventory","Barcode No.","Status"]; const body=rows.map(x=>[x.seq,x.bay,x.itemNo,x.description,x.inventory,x.barcode,x.status]); return [header,...body].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n"); }
-function downloadCSV(filename,rows){ const blob=new Blob([makeCSV(rows)],{type:"text/csv"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); }
-function exportSkipped(){ downloadCSV("indian_aisle_skipped.csv",items.filter(x=>x.status==="skipped")); }
-function exportAll(){ downloadCSV("indian_aisle_result.csv",items); }
-function resetProgress(){ if(!confirm("Reset all progress?"))return; items.forEach(x=>x.status=""); historyStack=[]; stoppedInfo=null; save(); goOrdering(); }
-function startVoiceSearch(){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR)return alert("Voice search is not supported. Try Chrome on Android."); const rec=new SR(); rec.lang="en-AU"; rec.interimResults=false; rec.maxAlternatives=1; rec.onresult=e=>{document.getElementById("searchBox").value=e.results[0][0].transcript; renderCurrent();}; rec.onerror=()=>alert("Voice search failed."); rec.start(); }
+function markSpecific(idx,status){currentIndex=idx;markCurrent(status);showList("remaining")}
+function complete(){hideAll();document.getElementById("completeCard").classList.remove("hidden");const o=items.filter(x=>x.status==="ordered").length,s=items.filter(x=>x.status==="skipped").length;document.getElementById("completeText").textContent=`Ordered: ${o}. Skipped: ${s}. Total: ${items.length}.`;}
+function makeRows(){const date=document.getElementById("orderDate").value;return items.map(x=>({"Line":x.seq,"Bay":x.bay,"No.":x.itemNo,"Description":x.description,"Inventory":x.inventory,"Barcode No.":x.barcode,[date]:x.status||"","Notes":document.getElementById("notesText").value,"New Product":x.newProduct?"YES":""}));}
+function exportDailyWorkbook(){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(makeRows()),"Indian_Aisle_Order");XLSX.writeFile(wb,`Indian_Aisle_Order_${document.getElementById("orderDate").value}.xlsx`);}
+function exportUpdatedMaster(){const rows=items.map(x=>({"Line":x.seq,"Bay":x.bay,"No.":x.itemNo,"Description":x.description,"Inventory":x.inventory,"Barcode No.":x.barcode}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Updated_Master");XLSX.writeFile(wb,"Indian_Aisle_Updated_Master.xlsx");}
+function resetProgress(){if(!confirm("Reset all progress?"))return;items.forEach(x=>{x.status="";x.skipReason=""});historyStack=[];stoppedInfo=null;save();goOrdering();}
+function startVoiceSearch(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return alert("Voice search works best in Chrome on Android.");const rec=new SR();rec.lang="en-AU";rec.onresult=e=>{document.getElementById("searchBox").value=e.results[0][0].transcript;renderCurrent()};rec.start();}
 async function toggleScanner(){
   const reader=document.getElementById("reader");
-  if(scannerRunning&&scanner){ await scanner.stop(); scannerRunning=false; reader.classList.add("hidden"); return; }
-  reader.classList.remove("hidden"); if(!scanner) scanner=new Html5Qrcode("reader");
-  try{ await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:140}},decoded=>{document.getElementById("searchBox").value=decoded; renderCurrent(); if(navigator.vibrate)navigator.vibrate(120);}); scannerRunning=true; }
-  catch(err){ alert("Camera scanner failed. Allow camera permission and use Chrome/HTTPS."); reader.classList.add("hidden"); }
+  if(scannerRunning&&scanner){await scanner.stop();scannerRunning=false;reader.classList.add("hidden");return}
+  reader.classList.remove("hidden"); if(!scanner)scanner=new Html5Qrcode("reader");
+  try{await scanner.start({facingMode:"environment"},{fps:15,qrbox:{width:280,height:160},aspectRatio:1.777},decoded=>{document.getElementById("searchBox").value=cleanBarcode(decoded);renderCurrent();if(navigator.vibrate)navigator.vibrate(120);});scannerRunning=true}
+  catch(e){alert("Scanner needs camera permission. On phone, use Chrome and open through HTTPS/local server.");reader.classList.add("hidden")}
 }
-function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify({items,historyStack,stoppedInfo})); }
-function esc(t){return String(t??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-function escJs(t){return String(t??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
-(function init(){ const saved=localStorage.getItem(STORAGE_KEY); if(!saved)return; try{ const data=JSON.parse(saved); if(data.items&&data.items.length){items=data.items; historyStack=data.historyStack||[]; stoppedInfo=data.stoppedInfo||null; updateStoppedLabels();}}catch(e){} })();
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({items,historyStack,stoppedInfo,notes:document.getElementById("notesText").value,date:document.getElementById("orderDate").value}))}
+function esc(t){return String(t??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function escJs(t){return String(t??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+(function init(){const saved=localStorage.getItem(STORAGE_KEY);if(!saved)return;try{const d=JSON.parse(saved);items=d.items||[];historyStack=d.historyStack||[];stoppedInfo=d.stoppedInfo||null;if(d.notes)document.getElementById("notesText").value=d.notes;if(d.date)document.getElementById("orderDate").value=d.date;updateStats()}catch(e){}})();
 </script>
 </body>
 </html>
