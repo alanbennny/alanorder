@@ -3,57 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Indian Aisle Ordering</title>
+  <title>Indian Aisle Ordering Pro</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111827;
-      color: #f9fafb;
-    }
-    header {
-      background: #030712;
-      padding: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      border-bottom: 1px solid #374151;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #111827; color: #f9fafb; }
+    header { background: #030712; padding: 16px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #374151; }
     h1 { margin: 0; font-size: 22px; }
+    h2 { margin-top: 0; }
     .small { color: #d1d5db; font-size: 13px; margin-top: 4px; }
-    .wrap { padding: 14px; max-width: 760px; margin: auto; }
-    .card {
-      background: #1f2937;
-      padding: 14px;
-      border-radius: 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.25);
-    }
+    .wrap { padding: 14px; max-width: 820px; margin: auto; }
+    .card { background: #1f2937; padding: 14px; border-radius: 14px; margin-bottom: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
     label { display: block; margin: 12px 0 6px; color: #d1d5db; font-size: 14px; }
-    input, select {
-      width: 100%;
-      padding: 13px;
-      border-radius: 10px;
-      border: 1px solid #4b5563;
-      background: #111827;
-      color: #f9fafb;
-      font-size: 16px;
+    input, select, textarea {
+      width: 100%; padding: 13px; border-radius: 10px; border: 1px solid #4b5563;
+      background: #111827; color: #f9fafb; font-size: 16px;
     }
+    textarea { min-height: 80px; }
     button {
-      width: 100%;
-      padding: 15px;
-      margin-top: 10px;
-      border: 0;
-      border-radius: 12px;
-      color: white;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
+      width: 100%; padding: 15px; margin-top: 10px; border: 0; border-radius: 12px;
+      color: white; font-size: 17px; font-weight: bold; cursor: pointer;
     }
     .btn-blue { background: #2563eb; }
     .btn-green { background: #16a34a; }
@@ -62,88 +34,33 @@
     .btn-grey { background: #4b5563; }
     .btn-purple { background: #7c3aed; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat {
-      background: #374151;
-      padding: 12px;
-      border-radius: 12px;
-      text-align: center;
-      color: #d1d5db;
-    }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .stat { background: #374151; padding: 12px; border-radius: 12px; text-align: center; color: #d1d5db; }
     .stat b { display: block; font-size: 24px; color: #f9fafb; margin-top: 4px; }
     .product-title { font-size: 25px; font-weight: 800; line-height: 1.25; margin-bottom: 12px; }
-    .meta {
-      background: #111827;
-      border-radius: 12px;
-      padding: 12px;
-      line-height: 1.8;
-      color: #e5e7eb;
-      font-size: 16px;
-    }
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      background: #374151;
-      border-radius: 999px;
-      margin: 8px 4px 0 0;
-      color: #d1d5db;
-      font-size: 14px;
-    }
+    .meta { background: #111827; border-radius: 12px; padding: 12px; line-height: 1.8; color: #e5e7eb; font-size: 16px; }
+    .pill { display: inline-block; padding: 6px 10px; background: #374151; border-radius: 999px; margin: 8px 4px 0 0; color: #d1d5db; font-size: 14px; }
     progress { width: 100%; height: 18px; margin-top: 10px; }
     .hidden { display: none; }
-    .list-item {
-      padding: 11px;
-      border-bottom: 1px solid #374151;
-      font-size: 15px;
-    }
+    .list-item { padding: 11px; border-bottom: 1px solid #374151; font-size: 15px; }
     .list-item button { font-size: 14px; padding: 10px; margin-top: 8px; }
-    .danger {
-      color: #fecaca;
-      background: #7f1d1d;
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    .suggestions {
-      background: #111827;
-      border: 1px solid #374151;
-      border-radius: 12px;
-      margin-top: 8px;
-      overflow: hidden;
-    }
-    .suggestion {
-      padding: 11px;
-      border-bottom: 1px solid #374151;
-      cursor: pointer;
-    }
+    .danger { color: #fecaca; background: #7f1d1d; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 14px; }
+    .ok { color: #bbf7d0; background: #14532d; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 14px; }
+    .suggestions { background: #111827; border: 1px solid #374151; border-radius: 12px; margin-top: 8px; overflow: hidden; }
+    .suggestion { padding: 11px; border-bottom: 1px solid #374151; cursor: pointer; }
     .suggestion:last-child { border-bottom: 0; }
     .suggestion b { color: #ffffff; }
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .tabs button {
-      padding: 10px 6px;
-      font-size: 13px;
-      margin-top: 0;
-      background: #374151;
-    }
-    #reader {
-      width: 100%;
-      background: #111827;
-      border-radius: 12px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+    .tabs button { padding: 10px 6px; font-size: 13px; margin-top: 0; background: #374151; }
+    #reader { width: 100%; background: #111827; border-radius: 12px; overflow: hidden; margin-top: 10px; }
+    .quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   </style>
 </head>
 
 <body>
 <header>
-  <h1>Indian Aisle Ordering</h1>
-  <div class="small">Voice search • Camera barcode scanner • Suggestions • Full list • Ordered list</div>
+  <h1>Indian Aisle Ordering Pro</h1>
+  <div class="small">Barcode scan • Item no search • OCR/PDE text scan • Bay learning • Excel export • Progress save</div>
 </header>
 
 <div class="wrap">
@@ -151,7 +68,7 @@
   <div class="card" id="setupCard">
     <h2>Load Excel File</h2>
     <div class="small">
-      Upload your Indian aisle Excel/export. App uses: <b>No.</b>, <b>Description</b>, <b>Inventory</b>, <b>Barcode No.</b>
+      Uses your columns: <b>No.</b>, <b>Description</b>, <b>Inventory</b>, <b>Barcode No.</b>. Optional column: <b>Bay</b>.
     </div>
 
     <label>Select Excel file</label>
@@ -160,6 +77,7 @@
     <label>Sort order</label>
     <select id="sortMode">
       <option value="original">Keep Excel order</option>
+      <option value="bay">Bay then Excel order</option>
       <option value="description">Description A-Z</option>
       <option value="inventoryLow">Lowest inventory first</option>
     </select>
@@ -168,7 +86,7 @@
     <button class="btn-grey" onclick="loadSample()">Test Sample</button>
 
     <div class="danger">
-      Best setup: arrange your Indian aisle Excel rows in your real walking order, then choose “Keep Excel order”.
+      Camera barcode works best from GitHub Pages/HTTPS in Chrome. OCR/PDE text scan uses your phone camera photo and tries to read item no/barcode text.
     </div>
   </div>
 
@@ -180,15 +98,26 @@
       <div class="stat">Total <b id="totalCount">0</b></div>
     </div>
 
-    <label>Search</label>
-    <input id="searchBox" placeholder="Search item no, barcode, or description" oninput="renderSuggestions(); renderCurrent();" />
+    <label>Search item no, barcode, description, or bay</label>
+    <input id="searchBox" placeholder="Search..." oninput="renderSuggestions(); renderCurrent();" />
     <div id="suggestions" class="suggestions hidden"></div>
 
-    <button class="btn-purple" onclick="startVoiceSearch()">🎤 Voice Search</button>
-    <button class="btn-blue" onclick="toggleScanner()">📷 Camera Barcode Scanner</button>
+    <div class="quick-row">
+      <button class="btn-purple" onclick="startVoiceSearch()">🎤 Voice</button>
+      <button class="btn-blue" onclick="toggleScanner()">📷 Barcode</button>
+    </div>
+
+    <label>OCR / PDE text scan photo</label>
+    <input type="file" id="ocrFile" accept="image/*" capture="environment" onchange="ocrFromImage()" />
+    <div id="ocrResult" class="small"></div>
+
     <div id="reader" class="hidden"></div>
 
     <progress id="progressBar" value="0" max="100"></progress>
+
+    <button class="btn-green" onclick="saveBackup()">💾 Save Progress Backup</button>
+    <button class="btn-grey" onclick="document.getElementById('backupInput').click()">Restore Backup</button>
+    <input class="hidden" type="file" id="backupInput" accept=".json" onchange="restoreBackup()" />
   </div>
 
   <div class="card hidden" id="productCard">
@@ -198,6 +127,12 @@
     <span class="pill" id="positionPill"></span>
     <span class="pill">Default Qty: 1</span>
 
+    <div id="bayPanel" class="hidden">
+      <label>Bay / shelf location missing — add it now</label>
+      <input id="bayInput" placeholder="Example: Bay 3, Left side, Top shelf" />
+      <button class="btn-blue" onclick="saveBayForCurrent()">Save Bay</button>
+    </div>
+
     <button class="btn-green" onclick="markCurrent('ordered')">ORDERED</button>
     <button class="btn-yellow" onclick="markCurrent('skipped')">SKIP</button>
     <button class="btn-grey" onclick="moveToEnd()">Not now / check later</button>
@@ -206,11 +141,18 @@
 
   <div class="card hidden" id="listCard">
     <div class="tabs">
-      <button onclick="showList('all')">Full List</button>
+      <button onclick="showList('all')">Full</button>
       <button onclick="showList('remaining')">Current</button>
       <button onclick="showList('ordered')">Ordered</button>
       <button onclick="showList('skipped')">Skipped</button>
     </div>
+
+    <div class="grid3">
+      <button class="btn-green" onclick="exportExcel('all')">Export Excel</button>
+      <button class="btn-yellow" onclick="exportExcel('ordered')">Ordered Excel</button>
+      <button class="btn-blue" onclick="exportExcel('remaining')">Current Excel</button>
+    </div>
+
     <div id="listTitle" class="product-title"></div>
     <div id="listBody"></div>
   </div>
@@ -219,8 +161,8 @@
     <h2>Indian Aisle Complete</h2>
     <p id="completeText"></p>
     <button class="btn-blue" onclick="showList('skipped')">Show Skipped Items</button>
-    <button class="btn-green" onclick="exportSkipped()">Export Skipped CSV</button>
-    <button class="btn-grey" onclick="exportAll()">Export Full Result CSV</button>
+    <button class="btn-green" onclick="exportExcel('all')">Export Full Excel</button>
+    <button class="btn-yellow" onclick="exportExcel('skipped')">Export Skipped Excel</button>
     <button class="btn-red" onclick="resetProgress()">Reset Progress</button>
   </div>
 
@@ -232,7 +174,7 @@ let currentIndex = 0;
 let historyStack = [];
 let scanner = null;
 let scannerRunning = false;
-const STORAGE_KEY = "indian_aisle_ordering_v3";
+const STORAGE_KEY = "indian_aisle_ordering_v4";
 
 function normaliseHeader(h) {
   return String(h || "").toLowerCase().replace(/\./g, "").replace(/\s+/g, "").trim();
@@ -256,7 +198,9 @@ function rowToItem(row, index) {
     description: String(getValue(row, ["Description", "Desc"])).trim(),
     inventory: String(getValue(row, ["Inventory", "Stock"])).trim(),
     barcode: String(getValue(row, ["Barcode No.", "Barcode No", "BarcodeNo", "Barcode"])).trim(),
-    status: ""
+    bay: String(getValue(row, ["Bay", "Location", "Shelf"])).trim(),
+    status: "",
+    updatedAt: ""
   };
 }
 
@@ -282,6 +226,7 @@ async function loadExcel() {
 
 function applySort() {
   const mode = document.getElementById("sortMode").value;
+  if (mode === "bay") items.sort((a, b) => (a.bay || "ZZZ").localeCompare(b.bay || "ZZZ") || a.seq - b.seq);
   if (mode === "description") items.sort((a, b) => a.description.localeCompare(b.description));
   if (mode === "inventoryLow") items.sort((a, b) => (Number(a.inventory) || 0) - (Number(b.inventory) || 0));
   items.forEach((x, i) => x.seq = i + 1);
@@ -289,11 +234,11 @@ function applySort() {
 
 function loadSample() {
   items = [
-    {seq:1,itemNo:"10001",description:"Aashirvaad Atta 10kg",inventory:"4",barcode:"930000000001",status:""},
-    {seq:2,itemNo:"10002",description:"MDH Garam Masala",inventory:"2",barcode:"930000000002",status:""},
-    {seq:3,itemNo:"10003",description:"Daawat Basmati Rice 5kg",inventory:"8",barcode:"930000000003",status:""},
-    {seq:4,itemNo:"10004",description:"Maggi Masala Noodles",inventory:"6",barcode:"930000000004",status:""},
-    {seq:5,itemNo:"10005",description:"Priya Mango Pickle",inventory:"1",barcode:"930000000005",status:""}
+    {seq:1,itemNo:"10001",description:"Aashirvaad Atta 10kg",inventory:"4",barcode:"930000000001",bay:"Bay 1",status:"",updatedAt:""},
+    {seq:2,itemNo:"10002",description:"MDH Garam Masala",inventory:"2",barcode:"930000000002",bay:"",status:"",updatedAt:""},
+    {seq:3,itemNo:"10003",description:"Daawat Basmati Rice 5kg",inventory:"8",barcode:"930000000003",bay:"Bay 2",status:"",updatedAt:""},
+    {seq:4,itemNo:"10004",description:"Maggi Masala Noodles",inventory:"6",barcode:"930000000004",bay:"",status:"",updatedAt:""},
+    {seq:5,itemNo:"10005",description:"Priya Mango Pickle",inventory:"1",barcode:"930000000005",bay:"Bay 3",status:"",updatedAt:""}
   ];
   currentIndex = 0;
   historyStack = [];
@@ -309,21 +254,19 @@ function showApp() {
   showList("remaining");
 }
 
-function visibleUnmarked() {
-  const q = document.getElementById("searchBox").value.toLowerCase().trim();
-  return items.filter(x => {
-    if (x.status) return false;
-    if (!q) return true;
-    return matchItem(x, q);
-  });
-}
-
 function matchItem(x, q) {
+  q = String(q || "").toLowerCase().trim();
   return (
     x.itemNo.toLowerCase().includes(q) ||
     x.description.toLowerCase().includes(q) ||
-    x.barcode.toLowerCase().includes(q)
+    x.barcode.toLowerCase().includes(q) ||
+    x.bay.toLowerCase().includes(q)
   );
+}
+
+function visibleUnmarked() {
+  const q = document.getElementById("searchBox").value.toLowerCase().trim();
+  return items.filter(x => !x.status && (!q || matchItem(x, q)));
 }
 
 function updateStats() {
@@ -354,6 +297,7 @@ function renderCurrent() {
     document.getElementById("productTitle").textContent = "No matching unmarked items";
     document.getElementById("productMeta").innerHTML = "Clear search to continue.";
     document.getElementById("positionPill").textContent = "";
+    document.getElementById("bayPanel").classList.add("hidden");
     return;
   }
 
@@ -362,11 +306,31 @@ function renderCurrent() {
 
   document.getElementById("productTitle").textContent = item.description || "(No description)";
   document.getElementById("productMeta").innerHTML =
-    `Item No: <b>${item.itemNo || "-"}</b><br>` +
-    `Inventory: <b>${item.inventory || "-"}</b><br>` +
-    `Barcode: <b>${item.barcode || "-"}</b><br>` +
-    `Status: <b>${item.status || "CURRENT"}</b>`;
+    `Item No: <b>${escapeHtml(item.itemNo || "-")}</b><br>` +
+    `Inventory: <b>${escapeHtml(item.inventory || "-")}</b><br>` +
+    `Barcode: <b>${escapeHtml(item.barcode || "-")}</b><br>` +
+    `Bay: <b>${escapeHtml(item.bay || "NO BAY")}</b><br>` +
+    `Status: <b>${escapeHtml(item.status || "CURRENT")}</b>`;
   document.getElementById("positionPill").textContent = `Line ${item.seq}`;
+
+  if (!item.bay) {
+    document.getElementById("bayPanel").classList.remove("hidden");
+    document.getElementById("bayInput").value = "";
+  } else {
+    document.getElementById("bayPanel").classList.add("hidden");
+  }
+}
+
+function saveBayForCurrent() {
+  const item = items[currentIndex];
+  const bay = document.getElementById("bayInput").value.trim();
+  if (!item) return;
+  if (!bay) return alert("Enter bay/location first.");
+  item.bay = bay;
+  item.updatedAt = new Date().toLocaleString();
+  save();
+  renderCurrent();
+  showList("remaining");
 }
 
 function renderSuggestions() {
@@ -380,7 +344,7 @@ function renderSuggestions() {
     return;
   }
 
-  const matches = items.filter(x => matchItem(x, q)).slice(0, 6);
+  const matches = items.filter(x => matchItem(x, q)).slice(0, 8);
   if (!matches.length) {
     div.classList.add("hidden");
     div.innerHTML = "";
@@ -391,7 +355,7 @@ function renderSuggestions() {
   div.innerHTML = matches.map(x => `
     <div class="suggestion" onclick="selectSuggestion('${escapeJs(x.itemNo)}','${escapeJs(x.barcode)}')">
       <b>${escapeHtml(x.description)}</b><br>
-      <span class="small">Item: ${escapeHtml(x.itemNo)} | Inv: ${escapeHtml(x.inventory)} | ${x.status || "remaining"}</span>
+      <span class="small">Item: ${escapeHtml(x.itemNo)} | Inv: ${escapeHtml(x.inventory)} | Bay: ${escapeHtml(x.bay || "NO BAY")} | ${escapeHtml(x.status || "remaining")}</span>
     </div>
   `).join("");
 }
@@ -408,6 +372,7 @@ function markCurrent(status) {
   if (!item || item.status) return;
   historyStack.push({ index: currentIndex, oldStatus: item.status });
   item.status = status;
+  item.updatedAt = new Date().toLocaleString();
   save();
   renderCurrent();
   showList("remaining");
@@ -438,19 +403,10 @@ function showList(type) {
   const body = document.getElementById("listBody");
   let rows = [];
 
-  if (type === "all") {
-    title.textContent = "Full List";
-    rows = items;
-  } else if (type === "remaining") {
-    title.textContent = "Current / Remaining List";
-    rows = items.filter(x => !x.status);
-  } else if (type === "ordered") {
-    title.textContent = "Ordered List";
-    rows = items.filter(x => x.status === "ordered");
-  } else if (type === "skipped") {
-    title.textContent = "Skipped List";
-    rows = items.filter(x => x.status === "skipped");
-  }
+  if (type === "all") { title.textContent = "Full List"; rows = items; }
+  if (type === "remaining") { title.textContent = "Current / Remaining List"; rows = items.filter(x => !x.status); }
+  if (type === "ordered") { title.textContent = "Ordered List"; rows = items.filter(x => x.status === "ordered"); }
+  if (type === "skipped") { title.textContent = "Skipped List"; rows = items.filter(x => x.status === "skipped"); }
 
   if (!rows.length) {
     body.innerHTML = "<p class='small'>No items in this list.</p>";
@@ -460,7 +416,7 @@ function showList(type) {
   body.innerHTML = rows.map(x => `
     <div class="list-item">
       <b>${escapeHtml(x.description)}</b><br>
-      <span class="small">Line ${x.seq} | Item: ${escapeHtml(x.itemNo)} | Inventory: ${escapeHtml(x.inventory)} | Barcode: ${escapeHtml(x.barcode)} | Status: ${escapeHtml(x.status || "remaining")}</span>
+      <span class="small">Line ${x.seq} | Item: ${escapeHtml(x.itemNo)} | Inv: ${escapeHtml(x.inventory)} | Barcode: ${escapeHtml(x.barcode)} | Bay: ${escapeHtml(x.bay || "NO BAY")} | Status: ${escapeHtml(x.status || "remaining")}</span>
       ${!x.status ? `
         <button class="btn-green" onclick="markSpecific('${escapeJs(x.itemNo)}','${escapeJs(x.barcode)}','ordered')">Mark Ordered</button>
         <button class="btn-yellow" onclick="markSpecific('${escapeJs(x.itemNo)}','${escapeJs(x.barcode)}','skipped')">Mark Skipped</button>
@@ -480,40 +436,64 @@ function complete() {
   updateStats();
   document.getElementById("productCard").classList.add("hidden");
   document.getElementById("completeCard").classList.remove("hidden");
-
   const ordered = items.filter(x => x.status === "ordered").length;
   const skipped = items.filter(x => x.status === "skipped").length;
-  document.getElementById("completeText").textContent =
-    `Ordered: ${ordered}. Skipped: ${skipped}. Total: ${items.length}.`;
+  document.getElementById("completeText").textContent = `Ordered: ${ordered}. Skipped: ${skipped}. Total: ${items.length}.`;
 }
 
-function makeCSV(rows) {
-  const header = ["Line","No.","Description","Inventory","Barcode No.","Status"];
-  const body = rows.map(x => [x.seq, x.itemNo, x.description, x.inventory, x.barcode, x.status]);
-  return [header, ...body]
-    .map(r => r.map(v => `"${String(v ?? "").replaceAll('"','""')}"`).join(","))
-    .join("\n");
+function rowsFor(type) {
+  if (type === "ordered") return items.filter(x => x.status === "ordered");
+  if (type === "skipped") return items.filter(x => x.status === "skipped");
+  if (type === "remaining") return items.filter(x => !x.status);
+  return items;
 }
 
-function downloadCSV(filename, rows) {
-  const blob = new Blob([makeCSV(rows)], { type: "text/csv" });
+function exportExcel(type) {
+  const rows = rowsFor(type).map(x => ({
+    "Line": x.seq,
+    "No.": x.itemNo,
+    "Description": x.description,
+    "Inventory": x.inventory,
+    "Barcode No.": x.barcode,
+    "Bay": x.bay,
+    "Status": x.status || "remaining",
+    "Updated At": x.updatedAt || ""
+  }));
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, type);
+  XLSX.writeFile(wb, `indian_aisle_${type}.xlsx`);
+}
+
+function saveBackup() {
+  const blob = new Blob([JSON.stringify({ items, historyStack, savedAt: new Date().toISOString() }, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = filename;
+  a.download = "indian_aisle_progress_backup.json";
   a.click();
 }
 
-function exportSkipped() {
-  downloadCSV("indian_aisle_skipped.csv", items.filter(x => x.status === "skipped"));
-}
-
-function exportAll() {
-  downloadCSV("indian_aisle_result.csv", items);
+async function restoreBackup() {
+  const file = document.getElementById("backupInput").files[0];
+  if (!file) return;
+  const text = await file.text();
+  try {
+    const data = JSON.parse(text);
+    if (!data.items || !Array.isArray(data.items)) throw new Error("Invalid backup");
+    items = data.items;
+    historyStack = data.historyStack || [];
+    save();
+    showApp();
+    alert("Progress restored.");
+  } catch(e) {
+    alert("Backup restore failed.");
+  }
 }
 
 function resetProgress() {
   if (!confirm("Reset all Ordered/Skipped progress?")) return;
-  items.forEach(x => x.status = "");
+  items.forEach(x => { x.status = ""; x.updatedAt = ""; });
   historyStack = [];
   save();
   renderCurrent();
@@ -522,17 +502,13 @@ function resetProgress() {
 
 function startVoiceSearch() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Voice search is not supported in this browser. Try Chrome on Android.");
-    return;
-  }
+  if (!SpeechRecognition) return alert("Voice search is not supported in this browser. Try Chrome on Android.");
   const rec = new SpeechRecognition();
   rec.lang = "en-AU";
   rec.interimResults = false;
   rec.maxAlternatives = 1;
   rec.onresult = e => {
-    const text = e.results[0][0].transcript;
-    document.getElementById("searchBox").value = text;
+    document.getElementById("searchBox").value = e.results[0][0].transcript;
     renderCurrent();
   };
   rec.onerror = () => alert("Voice search failed. Try again.");
@@ -550,25 +526,61 @@ async function toggleScanner() {
   }
 
   reader.classList.remove("hidden");
-
-  if (!scanner) {
-    scanner = new Html5Qrcode("reader");
-  }
+  if (!scanner) scanner = new Html5Qrcode("reader");
 
   try {
     await scanner.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 140 } },
+      { fps: 10, qrbox: { width: 280, height: 150 } },
       decodedText => {
-        document.getElementById("searchBox").value = decodedText;
-        renderCurrent();
+        handleScanText(decodedText);
         if (navigator.vibrate) navigator.vibrate(120);
       }
     );
     scannerRunning = true;
   } catch (err) {
-    alert("Camera scanner failed. Allow camera permission and use Chrome/HTTPS.");
+    alert("Camera scanner failed. Use Chrome and open from GitHub Pages HTTPS.");
     reader.classList.add("hidden");
+  }
+}
+
+function handleScanText(text) {
+  text = String(text || "").trim();
+  document.getElementById("searchBox").value = text;
+
+  const exact = items.find(x => x.barcode === text || x.itemNo === text);
+  if (exact) {
+    currentIndex = items.indexOf(exact);
+    document.getElementById("searchBox").value = exact.itemNo || exact.barcode;
+  }
+  renderCurrent();
+}
+
+async function ocrFromImage() {
+  const file = document.getElementById("ocrFile").files[0];
+  if (!file) return;
+
+  document.getElementById("ocrResult").textContent = "Reading image...";
+
+  try {
+    if (!("BarcodeDetector" in window)) {
+      document.getElementById("ocrResult").textContent = "This browser cannot read text/OCR directly. Use barcode scanner button or type item no.";
+      return;
+    }
+
+    const img = await createImageBitmap(file);
+    const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "code_128", "code_39", "upc_a", "upc_e"] });
+    const codes = await detector.detect(img);
+
+    if (codes.length) {
+      const value = codes[0].rawValue;
+      document.getElementById("ocrResult").textContent = "Detected barcode: " + value;
+      handleScanText(value);
+    } else {
+      document.getElementById("ocrResult").textContent = "No barcode detected in photo. For PDE text/item no, type it or use voice search.";
+    }
+  } catch(e) {
+    document.getElementById("ocrResult").textContent = "Photo scan failed. Use barcode scanner button or type/voice search.";
   }
 }
 
@@ -577,9 +589,7 @@ function save() {
 }
 
 function escapeHtml(text) {
-  return String(text ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
-  }[m]));
+  return String(text ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[m]));
 }
 
 function escapeJs(text) {
